@@ -1,0 +1,67 @@
+name: ant
+description: "Body Perfect Clinic App"
+publish_to: 'none'
+
+version: 1.0.1+3
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+
+  # ── API & Network ─────────────────────────
+  http: ^1.2.1                    # HTTP calls to backend
+  connectivity_plus: ^6.0.3       # Check internet connection
+
+  # ── Local Storage ─────────────────────────
+  shared_preferences: ^2.2.3      # Store tokens, user info
+  flutter_secure_storage: ^9.2.2  # Encrypted storage for tokens
+
+  # ── UI Components ─────────────────────────
+  pin_code_fields: ^8.0.1         # OTP 6-digit input boxes
+  shimmer: ^3.0.0                 # Loading skeleton effect
+  fluttertoast: ^8.2.8            # Toast messages
+  flutter_screenutil: ^5.9.0      # Responsive scaling
+
+  # ── Media / Sharing ───────────────────────
+  image_picker: ^1.1.2            # Camera + gallery picker
+  cached_network_image: ^3.4.1    # Cache + display profile images
+  share_plus: ^10.0.2             # Share referral code
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: assets/images/bodyperfect_logo.png
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: assets/images/bodyperfect_logo.png
+  remove_alpha_ios: true
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/images/services/
+    - assets/fonts/inter/LICENSE.txt
+
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter/Inter-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/inter/Inter-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/inter/Inter-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/inter/Inter-Bold.ttf
+          weight: 700

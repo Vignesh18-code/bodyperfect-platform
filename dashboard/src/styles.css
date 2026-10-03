@@ -1,0 +1,154 @@
+/* ───────────────────────── Fonts (self-hosted; CSP allows only 'self') ───────────────────────── */
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url(./fonts/inter-latin-wght-normal.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Inter";font-style:normal;font-weight:100 900;font-display:swap;src:url(./fonts/inter-latin-ext-wght-normal.woff2) format("woff2");unicode-range:U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF}
+@font-face{font-family:"Instrument Serif";font-style:normal;font-weight:400;font-display:swap;src:url(./fonts/instrument-serif-latin-400-normal.woff2) format("woff2")}
+@font-face{font-family:"Instrument Serif";font-style:italic;font-weight:400;font-display:swap;src:url(./fonts/instrument-serif-latin-400-italic.woff2) format("woff2")}
+
+/* ───────────────────────── Tokens ───────────────────────── */
+:root{
+  --font-sans:"Inter",ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --font-serif:"Instrument Serif","Iowan Old Style","Palatino Linotype",Georgia,serif;
+
+  --ink:#15231d;
+  --ink-2:#48584f;
+  --ink-3:#76867d;
+  --line:#e4e9e5;
+  --line-strong:#d0d8d2;
+  --canvas:#f4f6f3;
+  --surface:#fff;
+  --sunken:#f8faf8;
+
+  --brand:#21503f;
+  --brand-hover:#1a4132;
+  --brand-ink:#0e271f;
+  --brand-tint:#e6f0ea;
+  --brand-tint-2:#f1f6f3;
+  --mint:#9fe0c3;
+
+  --ok-bg:#e6f3ec;--ok-fg:#1b6842;--ok-dot:#2e9461;--ok-line:#cbe4d6;
+  --warn-bg:#fbf2dc;--warn-fg:#86580c;--warn-dot:#d99a1e;--warn-line:#efdfb1;
+  --info-bg:#e5eff8;--info-fg:#1f5a89;--info-dot:#3a82c4;--info-line:#cbdfee;
+  --teal-bg:#dff1ef;--teal-fg:#16625c;--teal-dot:#23a096;--teal-line:#c3e3df;
+  --bad-bg:#fbe9e5;--bad-fg:#9a3421;--bad-dot:#d0523a;--bad-line:#f1d0c8;
+  --mute-bg:#eff2ef;--mute-fg:#4b5a52;--mute-dot:#8a9a91;--mute-line:#dfe5e0;
+
+  --ring:0 0 0 3px rgb(33 80 63 / .16);
+  --shadow-xs:0 1px 2px rgb(14 39 31 / .05);
+  --shadow-sm:0 1px 2px rgb(14 39 31 / .06),0 1px 3px rgb(14 39 31 / .05);
+  --shadow-md:0 6px 16px -4px rgb(14 39 31 / .10),0 2px 6px -2px rgb(14 39 31 / .06);
+  --shadow-lg:0 28px 64px -16px rgb(8 28 22 / .42),0 0 0 1px rgb(14 39 31 / .06);
+
+  color-scheme:light;
+  font-family:var(--font-sans);
+  font-size:14px;
+  line-height:1.5;
+  color:var(--ink);
+  background:var(--canvas);
+  font-synthesis:none;
+  font-feature-settings:"cv11","ss03";
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+
+/* ───────────────────────── Base (auth screens: sign-in, boot, no-branch) ───────────────────────── */
+*{box-sizing:border-box}
+body{margin:0;min-height:100dvh}
+a{color:inherit;text-decoration:none}
+button,a,input,select,textarea{touch-action:manipulation}
+::selection{background:#cfe6da}
+:where(.login-layout,.form-wrap) :is(h1,h2,h3,h4,p){margin:0}
+:where(.login-layout,.form-wrap) h1{font-size:clamp(26px,2.4vw,34px);font-weight:600;letter-spacing:-.022em;line-height:1.15}
+:where(.login-layout,.form-wrap) h2{font-size:17px;font-weight:600;letter-spacing:-.012em;line-height:1.3}
+:where(.login-layout,.form-wrap) p{margin:10px 0}
+:where(.login-layout,.form-wrap,.notice) small{display:block;font-size:12px;line-height:1.45;color:var(--ink-3);font-weight:400}
+.muted{color:var(--ink-3);font-size:13px}
+.eyebrow{display:block;font-size:11px;letter-spacing:.09em;font-weight:600;color:var(--ink-3);margin-bottom:10px;text-transform:uppercase}
+.glyph{flex:none;display:block}
+:where(.login-layout,.form-wrap) :focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+.login-brand :focus-visible{outline-color:var(--mint)}
+
+/* ───────────────────────── Buttons & fields (auth screens) ───────────────────────── */
+:where(.login-layout,.form-wrap) button{
+  font:inherit;font-size:13.5px;font-weight:550;letter-spacing:-.003em;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:38px;padding:0 15px;border-radius:8px;border:1px solid var(--brand);
+  background:var(--brand);color:#fff;cursor:pointer;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgb(255 255 255 / .14),var(--shadow-xs);
+  transition:background-color .15s,border-color .15s,box-shadow .15s,color .15s,transform .06s;
+}
+:where(.login-layout,.form-wrap) button:not(:disabled):hover{background:var(--brand-hover);border-color:var(--brand-hover)}
+:where(.login-layout,.form-wrap) button:not(:disabled):active{transform:translateY(.5px)}
+:where(.login-layout,.form-wrap) button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+:where(.login-layout,.form-wrap) .text-button{background:none;border-color:transparent;box-shadow:none;color:var(--brand);padding:0 8px;min-height:30px;border-radius:6px}
+:where(.login-layout,.form-wrap) .text-button:not(:disabled):hover{background:var(--brand-tint);border-color:transparent;color:var(--brand-hover)}
+.form-wrap>.text-button{margin:18px 0 0 -8px}
+:where(.login-layout,.form-wrap) form{display:grid;gap:18px}
+:where(.login-layout,.form-wrap) label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:550;color:var(--ink)}
+:where(.login-layout,.form-wrap) label small{font-weight:400}
+:where(.login-layout,.form-wrap) input{
+  font:inherit;font-size:14px;font-weight:400;color:var(--ink);background:var(--surface);
+  border:1px solid var(--line-strong);border-radius:8px;min-height:40px;padding:0 12px;min-width:0;
+  box-shadow:var(--shadow-xs);transition:border-color .15s,box-shadow .15s,background-color .15s;
+}
+:where(.login-layout,.form-wrap) input::placeholder{color:#9aa79f}
+:where(.login-layout,.form-wrap) input:hover{border-color:#bcc7bf}
+:where(.login-layout,.form-wrap) input:focus-visible{outline:none;border-color:var(--brand);box-shadow:var(--ring)}
+:where(.login-layout,.form-wrap) input:disabled{background:var(--sunken);color:var(--ink-3);cursor:not-allowed}
+
+/* ───────────────────────── Notice (also shown above the sign-in screen) ───────────────────────── */
+.notice{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;margin:0 0 16px;border-radius:10px;background:var(--bad-bg);border:1px solid var(--bad-line);color:var(--bad-fg);font-size:13px;line-height:1.5}
+.notice .glyph{margin-top:2px}
+.notice small{color:inherit;opacity:.8;margin-top:4px;overflow-wrap:anywhere}
+.notice>div{min-width:0}
+
+/* ───────────────────────── Brand ───────────────────────── */
+.brand{display:flex;align-items:center;gap:12px;color:inherit}
+.mark{display:grid;place-items:center;flex:none;width:36px;height:36px;border-radius:11px;background:var(--brand);color:#fff;font:italic 400 28px/1 var(--font-serif);padding-bottom:4px;letter-spacing:-.04em}
+.brand-name{display:block;font-size:12px;font-weight:650;letter-spacing:.16em;line-height:1.2}
+.brand-name small{font-size:11px;font-weight:400;letter-spacing:.01em;margin-top:3px;color:inherit;opacity:.6}
+
+/* ───────────────────────── Login ───────────────────────── */
+.login-layout{min-height:100dvh;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);background:var(--surface)}
+.login-brand{
+  position:relative;overflow:hidden;isolation:isolate;background:var(--brand-ink);color:#dcebe3;
+  padding:44px clamp(32px,6vw,96px);display:flex;flex-direction:column;justify-content:space-between;min-height:640px;
+}
+.login-brand::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:
+    radial-gradient(60% 50% at 100% 0%,rgb(159 224 195 / .14),transparent 70%),
+    repeating-radial-gradient(circle at 108% 104%,transparent 0 46px,rgb(255 255 255 / .045) 46px 47px);
+}
+.login-brand .brand{color:#fff}
+.login-brand .mark{background:#e8f2ec;color:var(--brand-ink)}
+.login-brand h1{font-family:var(--font-serif);font-weight:400;font-size:clamp(42px,4.6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff;max-width:11em}
+.login-brand h1 em{color:var(--mint)}
+.login-brand p{font-size:16px;line-height:1.6;max-width:380px;color:#a9c2b6;margin:26px 0 0}
+.login-brand .eyebrow{color:#7fa595;margin-bottom:22px}
+.login-foot{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#86a596}
+.login-form{display:flex;align-items:center;justify-content:center;background:var(--surface);padding:32px}
+.form-wrap{width:min(100%,400px);padding:0;margin:auto}
+.form-wrap .eyebrow{color:var(--brand)}
+.form-wrap h1,.form-wrap h2{font-size:26px;font-weight:600;letter-spacing:-.025em;line-height:1.2}
+.form-wrap>.muted{margin:8px 0 0;font-size:14px}
+.form-wrap form{margin-top:28px}
+.form-wrap form>button{width:100%;min-height:44px;font-size:14px;margin-top:2px}
+.form-wrap form>small{margin-top:-6px}
+.form-wrap>.notice{margin-top:22px;margin-bottom:0}
+main.form-wrap{padding:64px 24px;width:min(100%,460px)}
+main.form-wrap[role=status]{display:flex;align-items:center;justify-content:center;gap:12px;min-height:100dvh;padding:0 24px;color:var(--ink-2);font-size:14px}
+main.form-wrap[role=status]::before{content:"";flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--line-strong);border-top-color:var(--brand);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+
+/* ───────────────────────── Auth responsive ───────────────────────── */
+@media(max-width:860px){
+  .login-layout{grid-template-columns:1fr}
+  .login-brand{min-height:auto;padding:28px 24px 32px;gap:48px}
+  .login-brand h1{font-size:44px}
+  .login-foot{display:none}
+  .login-form{padding:32px 20px 48px;align-items:flex-start}
+}
+@media(pointer:coarse){:where(.login-layout,.form-wrap) :is(button,input){min-height:44px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}

@@ -1,0 +1,66 @@
+{
+  "sourcePage": "https://www.bodyperfect.ae/services/",
+  "retrieved": "2026-09-30",
+  "services": [
+    {
+      "title": "Weightloss & Slimming",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist1.jpg",
+      "asset": "assets/images/services/weightloss-slimming.jpg"
+    },
+    {
+      "title": "Beauty & Aesthetics",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist2.jpg",
+      "asset": "assets/images/services/beauty-aesthetics.jpg"
+    },
+    {
+      "title": "Pain Management",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist3.jpg",
+      "asset": "assets/images/services/pain-management.jpg"
+    },
+    {
+      "title": "Ayurveda",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist4.jpg",
+      "asset": "assets/images/services/ayurveda.jpg"
+    },
+    {
+      "title": "Gut & Dna",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist5.jpg",
+      "asset": "assets/images/services/gut-dna.jpg"
+    },
+    {
+      "title": "Regenerative",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist6.jpg",
+      "asset": "assets/images/services/regenerative.jpg"
+    },
+    {
+      "title": "IV Therapy",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist7.jpg",
+      "asset": "assets/images/services/iv-therapy.jpg"
+    },
+    {
+      "title": "Longevity",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist8.jpg",
+      "asset": "assets/images/services/longevity.jpg"
+    },
+    {
+      "title": "Reverse Lifestyle diseases",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist9.jpg",
+      "asset": "assets/images/services/lifestyle-care.jpg"
+    },
+    {
+      "title": "Personal Training",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist10.png",
+      "asset": "assets/images/services/personal-training.png"
+    },
+    {
+      "title": "Dr. Jaison\u2019s ABB Diet Plan",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist11.jpg",
+      "asset": "assets/images/services/abb-diet-plan.jpg"
+    },
+    {
+      "title": "Dr. Jaison\u2019s \u201c20 KGs in 60 Days\u201d Transformation Program",
+      "source": "https://www.bodyperfect.ae/wp-content/themes/bodyperfect/assets/images/servlist12.jpg",
+      "asset": "assets/images/services/transformation-program.jpg"
+    }
+  ]
+}

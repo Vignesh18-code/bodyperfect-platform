@@ -1,0 +1,502 @@
+{
+  "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+  "pages": 70,
+  "sources": [
+    {
+      "id": "home",
+      "title": "Body Perfect - Slimming, Weightloss, Wellness & Longevity Clinic",
+      "url": "https://www.bodyperfect.ae/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "41b9fdf30224bb4c956a2df9c42041ce5f9ac907e8a7b91f460437984e455ec6"
+    },
+    {
+      "id": "about-us",
+      "title": "Meet Dr Jaison – Expert Wellness Guide",
+      "url": "https://www.bodyperfect.ae/about-us/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "63198df726fc853e8cbbce268e86444c800b1ea36106bc80ac34c5960528e43b"
+    },
+    {
+      "id": "ayurveda",
+      "title": "Best Ayurvedic Clinic & Center in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/ayurveda/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "ca16d994de702317e3cd9e135eab8e40fc98658496c89bb7716e84b1cf82a1e1"
+    },
+    {
+      "id": "beauty-aesthetics",
+      "title": "Best Aesthetic Clinic in Dubai Marina – Body Perfect",
+      "url": "https://www.bodyperfect.ae/beauty-aesthetics/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "e23b4311f8c3b52f2adbb3284e5798100b35b7811a05e96d7ed35992df8d313c"
+    },
+    {
+      "id": "contact-us",
+      "title": "Get in Touch with Us",
+      "url": "https://www.bodyperfect.ae/contact-us/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "577ef091bd0568af2a59f331524e4c670d02c6a471e91c87415d0e6133a0d377"
+    },
+    {
+      "id": "gut-dna",
+      "title": "DNA & Gut Wellness Solutions Dubai",
+      "url": "https://www.bodyperfect.ae/gut-dna/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "17a98ddff88c762e7ac36379c29b3e1238b29b38c84224b73bdf558888258939"
+    },
+    {
+      "id": "longevity",
+      "title": "Longevity Clinic & Specialist Services Dubai",
+      "url": "https://www.bodyperfect.ae/longevity/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "aa123c309e6e3de8036da36e6091b98af6a1f8687cfad6592ac5dd6c74306bad"
+    },
+    {
+      "id": "pain-management",
+      "title": "Pain Management & Back Pain Treatment Dubai",
+      "url": "https://www.bodyperfect.ae/pain-management/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "fee679ff382e98b8b1f16150ef1954dbe5bdec76fd0d176e7238236784dcf8a7"
+    },
+    {
+      "id": "phisotherepist",
+      "title": "Expert Physiotherapy Clinic in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/phisotherepist/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "2ac10339a1a277ec437be4f1b425dabdeeede7d270d987080fa136884d409bc8"
+    },
+    {
+      "id": "privacy-policy",
+      "title": "Privacy Policy & Data Protection – Body Perfect",
+      "url": "https://www.bodyperfect.ae/privacy-policy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "a447a71f6d9f69b942db85edb9956727c18a694afd3455ddda1a22c3d1cda7ff"
+    },
+    {
+      "id": "regenerative",
+      "title": "Advanced Regenerative Treatment for Healing",
+      "url": "https://www.bodyperfect.ae/regenerative/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "790c756e4b5b4a6aab584d3851b380c4969f4a2d83336565df57efc13c5efa5d"
+    },
+    {
+      "id": "reverse-lifestyle-diseases",
+      "title": "Reverse Lifestyle Diseases Naturally – Body Perfect",
+      "url": "https://www.bodyperfect.ae/reverse-lifestyle-diseases/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "27ee8c6f16329231a637bd063a3acbdcd640cc1d491bb4878937645a891313c5"
+    },
+    {
+      "id": "service-abhyanga",
+      "title": "Abhyanga Ayurvedic Body Massage for Wellness",
+      "url": "https://www.bodyperfect.ae/service/abhyanga/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "f294f931f92fd03d98b43ec62e568fcb3ccca6908f9b88e70bbec37460704959"
+    },
+    {
+      "id": "service-anti-aging",
+      "title": "Anti-Aging Therapy Dubai | Professional Anti-Aging Wellness Center",
+      "url": "https://www.bodyperfect.ae/service/anti-aging/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "11ed1ca9e8a3f739de9555e21c3797cfdea1bceb318fd523c4b61c72a7b92197"
+    },
+    {
+      "id": "service-aroma-therapy",
+      "title": "Aroma Therapy Services in Dubai - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/aroma-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "d04325c1d74603bc0e80bb92732df9e068f0110369ac29f29c53df0c3fc5b8fb"
+    },
+    {
+      "id": "service-blood-pressure",
+      "title": "Blood Pressure Treatment in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/blood-pressure/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "75dde207f8e7ab1491024ae6aab2cab2b3f095fd3babd8dc2493f7d604d2e709"
+    },
+    {
+      "id": "service-bust-lifting-2",
+      "title": "Bust Lifting & Firming Therapy",
+      "url": "https://www.bodyperfect.ae/service/bust-lifting-2/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "d531576ce941060383e1814f5dc369ca0ae890898b98d9a151de619f3adcde79"
+    },
+    {
+      "id": "service-bust-lifting",
+      "title": "Bust Lifting Treatment in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/bust-lifting/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "39b1950fc5ed111667d737703a4acb7cfd3ffaae5eb19ac7e98fb8f4f54da582"
+    },
+    {
+      "id": "service-butt-lift",
+      "title": "Brazilian Butt Lift in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/butt-lift/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "2193db5541af2d6044626dee048320ac9aec6d0a468a6058f681e6d823282390"
+    },
+    {
+      "id": "service-butt-lifting",
+      "title": "Butt Lifting Treatment Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/butt-lifting/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "9ef68dd14d144a3752146b87b103b3331546b95bfb5c904402e66a25d2f5aecf"
+    },
+    {
+      "id": "service-cavitation",
+      "title": "Cavitation Fat Reduction in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/cavitation/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "f01fc16c7a4bdc3454e9625413c53e1109bd5668516767eadb599b16e6708a6d"
+    },
+    {
+      "id": "service-cholesterol",
+      "title": "Cholesterol Balance Therapy Services | Control Program Dubai - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/cholesterol/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "b5c37a39543ca69329992e7c6210de1248cd0324a72ae5c447a06f3b401803c1"
+    },
+    {
+      "id": "service-cold-plunge",
+      "title": "Cold Plunge Therapy in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/cold-plunge/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "e5b318b942bd19aefc96e7661ac8d0078180c23f529f2d3aa09c8b7316650c73"
+    },
+    {
+      "id": "service-diabetes",
+      "title": "Diabetes Lifestyle Management Dubai | Advanced Diabetes Care Marina - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/diabetes/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "ca2e262180b52e814124420d4ec7bef00b613f15d559a6b6e804ab70e4a8236c"
+    },
+    {
+      "id": "service-dna",
+      "title": "Professional DNA Testing Service Dubai for Advanced DNA Wellness - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/dna/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "d190dd4570cd007c5f7e72af39a7a4fac837b90dfa16651a2387d72ad31abb56"
+    },
+    {
+      "id": "service-double-chin-3",
+      "title": "Double Chin Reduction Treatment",
+      "url": "https://www.bodyperfect.ae/service/double-chin-3/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "f33c15713e4cc38e8866a7eb3f470bab673f6500615290679a3eefb2bd7c676c"
+    },
+    {
+      "id": "service-dr-jaisons-20-kgs-in-60-days-transformation-program",
+      "title": "Dr. Jaison’s 60-Days Fat Loss Program",
+      "url": "https://www.bodyperfect.ae/service/dr-jaisons-20-kgs-in-60-days-transformation-program/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "d6fc9e6f8d57d4ee47de3d3b7ff617741e31f7802992a216d76229772a8da9f2"
+    },
+    {
+      "id": "service-dr-jaisons-abb-diet-plan",
+      "title": "Dr. Jaison’s ABB Diet Plan - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/dr-jaisons-abb-diet-plan/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "c7a56fd44800ce2b35a10ac5f566cc3c413c91848213dca84f8e11a71a66c4f9"
+    },
+    {
+      "id": "service-electro-stimulation",
+      "title": "Electro Stimulation Services in Dubai - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/electro-stimulation/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "19d53293b2a2e7c895ba47bbb15fbe9f09735a13647bd564c6c64d5e35fc4779"
+    },
+    {
+      "id": "service-emslim",
+      "title": "EMSLIM Body Sculpting & Fat Reduction",
+      "url": "https://www.bodyperfect.ae/service/emslim/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "5b51bf1df24d87904690bf864d5eea111cbcb6482d9e3df3a862e81ed7862684"
+    },
+    {
+      "id": "service-endospheres",
+      "title": "Endospheres Therapy in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/endospheres/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "5b9010c5881ea7dbefdc366b78c1e52ede7a8239ab6c35cf73c0e27e2d45a7c0"
+    },
+    {
+      "id": "service-exosome-therapy",
+      "title": "Exosome Therapy in Dubai | Cellular Renewal at Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/exosome-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "cfc8dd177bf7533f4ac9591686a754a853a40ec05453d7239653edecf110a02f"
+    },
+    {
+      "id": "service-exosome",
+      "title": "Exosome Regenerative Treatment for Healing",
+      "url": "https://www.bodyperfect.ae/service/exosome/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "b0fa74671fcc3484893a2e446e75bf7713757f45663d053b4033215a126bee88"
+    },
+    {
+      "id": "service-fat-freezing-2",
+      "title": "Fat Freezing Treatment in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/fat-freezing-2/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "0080cac5cd621aad8f461a706dad8b37a82972fad636d3f316b9601d56ee34cd"
+    },
+    {
+      "id": "service-fat-freezing",
+      "title": "RESHAPE Body Contouring in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/fat-freezing/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "78ccb3260a1d2116027c1e363715e3c9024ae9c4138be8ab2d985a3ecc3fe760"
+    },
+    {
+      "id": "service-fatty-liver",
+      "title": "Fatty Liver Wellness Treatment Dubai | Liver Reversal & Lifestyle Care.",
+      "url": "https://www.bodyperfect.ae/service/fatty-liver/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "0040bd62af05bd35eed0457c728f12165e7399dd843d41dcb13bf0dd72cbbe94"
+    },
+    {
+      "id": "service-greeva-vasti",
+      "title": "Greeva Vasti Therapy Dubai | Natural Neck Pain Relief Services.",
+      "url": "https://www.bodyperfect.ae/service/greeva-vasti/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "cba978e7234495ceea0d4ee1ca7228138dea193013be7a3f986765fc207eba25"
+    },
+    {
+      "id": "service-gut",
+      "title": "Gut Health & Microbiome Testing Dubai",
+      "url": "https://www.bodyperfect.ae/service/gut/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "4e595768a1f20ed545996a779fdb3fe698645f0a31d09a99ed9959c3dd790a71"
+    },
+    {
+      "id": "service-hifu-3",
+      "title": "HIFU Skin Tightening & Lift",
+      "url": "https://www.bodyperfect.ae/service/hifu-3/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "a4181c68227a2cb2801060309a8506c8ae24b6f4b614b74310e410701d4d25b2"
+    },
+    {
+      "id": "service-hifu",
+      "title": "HIFU Skin Lifting & Tightening in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/hifu/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "a1ad177d607ee48a822b273fd6bb2e2eaff5bf7af214853a9d9747c196672453"
+    },
+    {
+      "id": "service-hydra-facial-2",
+      "title": "Hydrating Facial Services in Dubai | Deep Cleansing Facial Care",
+      "url": "https://www.bodyperfect.ae/service/hydra-facial-2/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "f7507841c6025ce61e1a91c8e8f452b9a515f6c5d66c22c71876690552a1bf75"
+    },
+    {
+      "id": "service-hydrogen-bathing",
+      "title": "Hydrogen Bathing Therapy Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/hydrogen-bathing/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "cc316618a96f6bcea6aeb9950e482ca783d0fb91d82dd3c2cc69b7c7acb0eb79"
+    },
+    {
+      "id": "service-hydrogen-breathing",
+      "title": "Hydrogen Breathing Therapy Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/hydrogen-breathing/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "888760f80de9406c1f9b268b84375d1fbeb0c23f0bd53d6e3895c9202d3f740a"
+    },
+    {
+      "id": "service-hydrogen-drinking",
+      "title": "Hydrogen Drinking Therapy Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/hydrogen-drinking/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "80f3968bf81ac327dbb561170443a8479e997f43e9cdc867a144b272a64098c5"
+    },
+    {
+      "id": "service-indeba",
+      "title": "INDIBA Treatment in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/indeba/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "45a2d0c5c6299c973ab4f90c91478a13673782103904e623a941193399b32ce2"
+    },
+    {
+      "id": "service-iv-therapy",
+      "title": "Best IV Therapy Services in Dubai - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/iv-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "39d0daad0cd9ff0b6992c4e5e0745e7f9753f25e8da1c2a6c0c4ae1955a3ee03"
+    },
+    {
+      "id": "service-janu-vasti",
+      "title": "Janu Vasti Therapy for Joint & Arthritis Relief",
+      "url": "https://www.bodyperfect.ae/service/janu-vasti/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "5a411ecefa09e9af1123acc891a429b96e1e2c3947ea012bac4378aef2c9dc77"
+    },
+    {
+      "id": "service-kati-vasti",
+      "title": "Kati Vasti Lower Back Therapy | Ayurvedic Back Pain Care",
+      "url": "https://www.bodyperfect.ae/service/kati-vasti/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "3a0dda814cf3efdccc0f0fbb670916201fc7e9cf7d4809c222b9919f258d31c7"
+    },
+    {
+      "id": "service-kizhi",
+      "title": "Kizhi Ayurvedic Therapy for Pain Relief",
+      "url": "https://www.bodyperfect.ae/service/kizhi/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "ccc8db66628fae9387f55e20226759218f6ed5d4c5bd23c9dc569df62c702f83"
+    },
+    {
+      "id": "service-lipo-cooling",
+      "title": "LIPO Cooling Fat Reduction in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/lipo-cooling/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "a2ca815e6ea634bc2984d7312610529a9182ac5a0922188bc207649888d13993"
+    },
+    {
+      "id": "service-lipo-laser",
+      "title": "LIPO Laser Fat Reduction in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/lipo-laser/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "2d040652fd2c1775ccd9132a2194b22950bef4fccc9f53baf69ed91cafecc4c4"
+    },
+    {
+      "id": "service-lipolaser-heat",
+      "title": "LipoLaser Heat Fat Reduction in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/lipolaser-heat/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "2899cd8bcc86db658246481ead00ab7f4e2a4239ef48dc08bb75af8e30621868"
+    },
+    {
+      "id": "service-lymphatic-massage",
+      "title": "Lymphatic Massage Therapy in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/lymphatic-massage/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "774d2f7917853005f9516c1d2cda81176ee30631e9457a84f888685cfb65cdca"
+    },
+    {
+      "id": "service-madero-therapy",
+      "title": "Madero Therapy Body Sculpting in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/madero-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "6a38ccc712a330a0eb9cf17f087d1209b5456f88f93fdfb9bcfa542a5a9a9d4a"
+    },
+    {
+      "id": "service-msculpt",
+      "title": "MSCULPT Body Contouring in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/msculpt/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "16a80f4a51f9ffdeb4da82647c5955ec245f4b0c75b4f9674ebc928778b28dbd"
+    },
+    {
+      "id": "service-nasyam",
+      "title": "Nasyam Wellness Treatment in Dubai | Expert Ayurvedic Therapy",
+      "url": "https://www.bodyperfect.ae/service/nasyam/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "29b6261da5d21fada0e72e5ef2f5ee9d8b0fa9a50f638f86a3ab1171131cef1e"
+    },
+    {
+      "id": "service-pain-relief-treatment",
+      "title": "Pain Relief Clinic in Dubai Marina for Back Pain Treatment - Visit Now",
+      "url": "https://www.bodyperfect.ae/service/pain-relief-treatment/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "8ebe70986ca3f2a6edf9ca5a68dc758b3df41c8402f7a7cefd87b4c8206194fe"
+    },
+    {
+      "id": "service-peptide-therapy",
+      "title": "Experience Peptide Wellness & Health Therapy Services Dubai.",
+      "url": "https://www.bodyperfect.ae/service/peptide-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "142892707d83f6f5862d57bd41630067ed55ef63299921207d3efbbc847c4be4"
+    },
+    {
+      "id": "service-personal-training",
+      "title": "Body Transformation Trainer in Dubai for Weight Loss Training.",
+      "url": "https://www.bodyperfect.ae/service/personal-training/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "395ee39620056d7b53cf1b56d9c99cc84ec353f9de37ca0d4001a89ef761acc2"
+    },
+    {
+      "id": "service-pichu",
+      "title": "Ayurvedic Pichu Therapy for Pain & Stress Relief",
+      "url": "https://www.bodyperfect.ae/service/pichu/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "6c81e385cda4550f29db77849c270946ceff66d480c6d05c689e35f552469890"
+    },
+    {
+      "id": "service-presso-therapy",
+      "title": "Presso Therapy Treatment in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/presso-therapy/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "e6ed39703d0ee28e515cd8e43c742b73e0c149c2c6d6abfefa53914f36a084c9"
+    },
+    {
+      "id": "service-prp-platelet-rich-plasma",
+      "title": "PRP Treatment for Hair Growth & Skin Glow",
+      "url": "https://www.bodyperfect.ae/service/prp-platelet-rich-plasma/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "673b489661411023ddf3aeea5e4a8b1b8550c6a29d9e42958e662802732ff10a"
+    },
+    {
+      "id": "service-rf-2",
+      "title": "RF Skin Tightening & Rejuvenation",
+      "url": "https://www.bodyperfect.ae/service/rf-2/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "9ea66847d3ac8f6fc1f77bb40ea16ce079bd83b60d2a2c53851548603fab0115"
+    },
+    {
+      "id": "service-rf",
+      "title": "Radio Frequency Skin Tightening in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/rf/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "21941837ab9cb2f06d9b05ec3de5ce7fb6db153aa8ff938e60591fa5706fcbc4"
+    },
+    {
+      "id": "service-shirodhara",
+      "title": "Shirodhara Oil Therapy Services | Mental Relaxation & Wellness.",
+      "url": "https://www.bodyperfect.ae/service/shirodhara/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "c3437b5d74abc975291297458c06a42ea1ad4e8a781b7f970b1450e5550475dc"
+    },
+    {
+      "id": "service-stem-cell",
+      "title": "Regenerative Wellness Center in Dubai for Professional Stem Cell Services.",
+      "url": "https://www.bodyperfect.ae/service/stem-cell/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "ace83b2eeb9f2b8e8345993732f319e1c0160881d164500615b7ed6d47895c82"
+    },
+    {
+      "id": "service-thyroid-pcod",
+      "title": "Thyroid & PCOD Treatment Specialist in Dubai – Body Perfect",
+      "url": "https://www.bodyperfect.ae/service/thyroid-pcod/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "a55cd013c67578f3ca55c1d9107f0b742b4a2fd7619f19b9d796d95e9b790978"
+    },
+    {
+      "id": "service-udvarthana",
+      "title": "Experience Udvarthana Therapy & Massage Services Dubai.",
+      "url": "https://www.bodyperfect.ae/service/udvarthana/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "1bb96b2b6362da30ea115f05695d22263082fb89de22f0d765d79a6686303fd6"
+    },
+    {
+      "id": "services",
+      "title": "Wellness, Beauty & Pain Relief Services",
+      "url": "https://www.bodyperfect.ae/services/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "c4d66432d73619ca2407ebe2be5b7fb69253ce1ec99ebdea6d9611a106fe854a"
+    },
+    {
+      "id": "weightloss-slimming",
+      "title": "Weight Loss Program Dubai | Expert Fat Loss & Slimming Center",
+      "url": "https://www.bodyperfect.ae/weightloss-slimming/",
+      "retrievedAt": "2026-10-02T04:44:41.023503+00:00",
+      "sha256": "f2078a03c8ab2daedd8dc1765c8dca5fcb57417bb45ec8857870f99335bce8af"
+    }
+  ],
+  "failures": [
+    {
+      "url": "https://www.bodyperfect.ae/service/indiba/",
+      "error": "HTTPError"
+    }
+  ]
+}

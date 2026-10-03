@@ -1,0 +1,58 @@
+name: bodyperfect-local
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: clinicapp
+      POSTGRES_USER: clinicapp
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD in infrastructure/.env}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U clinicapp -d clinicapp']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  mail:
+    image: axllent/mailpit:v1.20
+    ports:
+      - '127.0.0.1:8025:8025'
+  api:
+    build: ../clinicapp
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DATABASE_URL: jdbc:postgresql://database:5432/clinicapp
+      DATABASE_USERNAME: clinicapp
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random secret of at least 32 bytes}
+      MAIL_HOST: mail
+      MAIL_PORT: 1025
+      MAIL_USERNAME: local@example.test
+      MAIL_PASSWORD: local-only
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_AUTH: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE: 'false'
+      SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_REQUIRED: 'false'
+      APP_STAFF_COOKIE_SECURE: 'false'
+      CORS_ALLOWED_ORIGINS: http://localhost:8088,http://127.0.0.1:8088
+      APP_BOOTSTRAP_ENABLED: ${BOOTSTRAP_ENABLED:-false}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      BOOTSTRAP_ADMIN_PHONE: ${BOOTSTRAP_ADMIN_PHONE:-}
+      BOOTSTRAP_ADMIN_NAME: ${BOOTSTRAP_ADMIN_NAME:-}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      database:
+        condition: service_healthy
+      mail:
+        condition: service_started
+  dashboard:
+    build: ../dashboard
+    ports:
+      - '127.0.0.1:8088:8080'
+    depends_on:
+      - api
+volumes:
+  database:
+  uploads:

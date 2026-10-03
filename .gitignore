@@ -1,0 +1,24 @@
+.env
+infrastructure/.env
+
+.local/
+
+# Shared monorepo exclusions
+**/node_modules/
+**/build/
+**/dist/
+**/target/
+**/uploads/
+**/.idea/
+**/.claude/
+**/__pycache__/
+**/.DS_Store
+**/.env
+**/.env.*
+!**/.env.example
+*.dump
+*.sql.gz
+*.jks
+*.keystore
+*.p12
+*.mobileprovision
