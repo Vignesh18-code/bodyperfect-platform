@@ -1,4 +1,7 @@
 import java.util.Properties
+import java.util.Base64
+import java.net.URI
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     id("com.android.application")
@@ -15,9 +18,6 @@ if (keystorePropertiesFile.exists()) {
 val hasReleaseKeystore = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
     .all { (keystoreProperties[it] as String?)?.isNotBlank() == true }
 
-if (!hasReleaseKeystore) {
-    logger.warn("Release keystore is not configured; using debug signing for local/staging release APK builds.")
-}
 
 android {
     namespace = "com.bodyperfect.clinicapp"
@@ -29,9 +29,6 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
-    }
 
     defaultConfig {
         applicationId = "com.bodyperfect.clinicapp"
@@ -57,19 +54,43 @@ android {
 
     buildTypes {
         release {
-            // Uses real release signing when android/key.properties exists; otherwise
-            // keeps local/staging release APK builds installable without committing keys.
-            signingConfig = if (hasReleaseKeystore) {
-                signingConfigs.getByName("release")
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             isShrinkResources = true
         }
     }
 }
 
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_17)
+    }
+}
+
 flutter {
     source = "../.."
+}
+
+// Never silently ship a debug-signed release to Play.
+val verifyReleaseConfiguration = tasks.register("verifyReleaseConfiguration") {
+    doLast {
+        check(hasReleaseKeystore) {
+            "Release signing required: configure android/key.properties with your upload keystore. Use a debug build for local testing."
+        }
+        val defines = (project.findProperty("dart-defines") as? String).orEmpty()
+            .split(",").filter { it.isNotBlank() }.map {
+                String(Base64.getDecoder().decode(it), Charsets.UTF_8)
+            }
+        val endpoint = defines.lastOrNull { it.startsWith("API_BASE_URL=") }
+            ?.substringAfter("=")
+        val uri = endpoint?.let { URI(it) }
+        check(uri != null && uri.scheme == "https" && !uri.host.isNullOrBlank()
+            && uri.host != "localhost" && uri.host != "127.0.0.1"
+            && uri.host != "example.com" && !uri.host.endsWith(".example.com")) {
+            "Release requires --dart-define=API_BASE_URL=https://YOUR_LIVE_API_HOST (no local or example endpoint)."
+        }
+    }
+}
+tasks.configureEach {
+    if (name == "preReleaseBuild") dependsOn(verifyReleaseConfiguration)
 }
