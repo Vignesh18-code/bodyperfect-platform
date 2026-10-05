@@ -13,6 +13,10 @@ WORKDIR /app
 
 COPY --from=build /app/target/*.jar app.jar
 
+RUN groupadd --system clinic && useradd --system --gid clinic clinic && mkdir -p /app/uploads && chown -R clinic:clinic /app
+
+USER clinic
+
 EXPOSE 8080
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

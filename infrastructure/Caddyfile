@@ -1,0 +1,22 @@
+{
+    email {$ACME_EMAIL}
+}
+{$API_DOMAIN} {
+    request_header -Forwarded
+    header Strict-Transport-Security "max-age=31536000"
+    @public path /api/* /account-deletion
+    handle @public {
+        reverse_proxy api:8080
+    }
+    respond 404
+}
+{$DASHBOARD_DOMAIN} {
+    request_header -Forwarded
+    header Strict-Transport-Security "max-age=31536000"
+    handle /account-deletion {
+        reverse_proxy api:8080
+    }
+    handle {
+        reverse_proxy dashboard:8080
+    }
+}

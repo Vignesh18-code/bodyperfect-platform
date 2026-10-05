@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Public authentication must still work when a client holds an expired access token.
         return java.util.Set.of("/api/auth/login", "/api/auth/register", "/api/auth/verify-otp",
                 "/api/auth/resend-otp", "/api/auth/refresh", "/api/auth/forgot-password",
-                "/api/auth/reset-password", "/api/staff-auth/csrf", "/api/staff-auth/login", "/api/staff-auth/refresh").contains(request.getRequestURI());
+                "/api/auth/reset-password", "/api/staff-auth/mfa/setup","/api/staff-auth/csrf", "/api/staff-auth/login", "/api/staff-auth/refresh").contains(request.getRequestURI());
     }
 
     @Override

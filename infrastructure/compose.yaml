@@ -20,10 +20,19 @@ services:
   api:
     build: ../clinicapp
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      SPRING_FLYWAY_ENABLED: 'true'
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: 'false'
+      APP_SECRETS_ENCRYPTION_KEY: ${APP_SECRETS_ENCRYPTION_KEY:?Set a stable encryption key}
       DATABASE_URL: jdbc:postgresql://database:5432/clinicapp
       DATABASE_USERNAME: clinicapp
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:?Set DATABASE_PASSWORD}
+      PRIVACY_POLICY_URL: ${PRIVACY_POLICY_URL:-}
+      TERMS_URL: ${TERMS_URL:-}
+      PRIVACY_CONTACT_EMAIL: ${PRIVACY_CONTACT_EMAIL:-}
+      CLINIC_LEGAL_NAME: ${CLINIC_LEGAL_NAME:-}
+      RETENTION_NOTICE: ${RETENTION_NOTICE:-}
       JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET to a random secret of at least 32 bytes}
       MAIL_HOST: mail
       MAIL_PORT: 1025

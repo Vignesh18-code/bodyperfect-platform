@@ -1,3 +1,4 @@
+import 'account_privacy_screen.dart';
 import '../../widgets/client_avatar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -229,13 +230,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   _buildSettingTile(
                     icon: Icons.shield_outlined,
-                    label: 'Privacy Policy',
-                    onTap: () {},
+                    label: 'Privacy & account deletion',
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AccountPrivacyScreen(),
+                      ),
+                    ),
                   ),
                   _buildSettingTile(
                     icon: Icons.description_outlined,
                     label: 'Terms of Service',
-                    onTap: () {},
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AccountPrivacyScreen(),
+                      ),
+                    ),
                   ),
                   _buildSettingTile(
                     icon: Icons.info_outline_rounded,

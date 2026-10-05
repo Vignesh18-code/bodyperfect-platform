@@ -165,6 +165,21 @@ public class UserService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public org.springframework.core.io.Resource readOwnPhoto(String email) throws IOException {
+        String stored = findUserOrThrow(email).getProfileImageUrl();
+        if (stored == null || !stored.startsWith("/uploads/profiles/"))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND);
+        String name = stored.substring("/uploads/profiles/".length());
+        if (!name.matches("user-[0-9]+-[a-f0-9-]+\\.(png|jpg|webp)"))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND);
+        Path base = Paths.get(uploadDir, "profiles").toAbsolutePath().normalize();
+        Path file = base.resolve(name).normalize();
+        if (!file.startsWith(base) || Files.isSymbolicLink(file) || !Files.isRegularFile(file))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND);
+        return new org.springframework.core.io.FileSystemResource(file);
+    }
+
     // ── Helpers ─────────────────────────────────────────
     private User findUserOrThrow(String email) {
         return userRepository.findByEmail(email)

@@ -1,0 +1,19 @@
+CREATE TABLE privacy_requests (
+ id BIGSERIAL PRIMARY KEY,
+ patient_id BIGINT NOT NULL REFERENCES users(id),
+ state VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK (state IN ('OPEN','IN_REVIEW','COMPLETED','DECLINED')),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ resolution VARCHAR(1000), reviewed_by BIGINT REFERENCES users(id)
+);
+CREATE UNIQUE INDEX idx_privacy_open_patient ON privacy_requests(patient_id) WHERE state IN ('OPEN','IN_REVIEW');
+CREATE TABLE assistant_reports (
+ id BIGSERIAL PRIMARY KEY,
+ patient_id BIGINT NOT NULL REFERENCES users(id),
+ exchange_id BIGINT REFERENCES assistant_exchanges(id) ON DELETE SET NULL,
+ reason VARCHAR(30) NOT NULL CHECK(reason IN ('UNSAFE','INCORRECT','OFFENSIVE','PRIVACY','OTHER')),
+ state VARCHAR(20) NOT NULL DEFAULT 'OPEN' CHECK(state IN ('OPEN','REVIEWED')),
+ created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ resolution VARCHAR(1000), reviewed_by BIGINT REFERENCES users(id), reviewed_at TIMESTAMPTZ,
+ UNIQUE(patient_id,exchange_id)
+);

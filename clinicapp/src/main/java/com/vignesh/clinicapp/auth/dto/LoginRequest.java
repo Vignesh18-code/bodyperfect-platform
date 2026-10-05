@@ -13,4 +13,7 @@ public class LoginRequest {
     @NotBlank(message = "Password is required")
     @Size(max = 72, message = "Password must be at most 72 characters")
     private String password;
+
+    @Pattern(regexp="[0-9]{6}")
+    private String otp;
 }

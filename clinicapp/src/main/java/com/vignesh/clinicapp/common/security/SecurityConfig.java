@@ -75,11 +75,13 @@ public class SecurityConfig {
                                 "/api/auth/refresh",
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
-                                "/uploads/**",
+                                "/api/public/policies",
+                                "/account-deletion",
                                 "/actuator/health",
                                 "/actuator/health/**"
                         ).permitAll()
 
+                        .requestMatchers("/uploads/**").denyAll()
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         .anyRequest().authenticated()

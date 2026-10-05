@@ -1,3 +1,4 @@
+import {PrivacyQueue} from './PrivacyQueue.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { api, params } from './api.js';
@@ -35,7 +36,7 @@ function Dialog({title,onClose,children,wide}) {
 function Field({label,...props}) { return <label>{label}<input {...props}/></label>; }
 function Pager({data,page,setPage}) { return <div className="pager"><span>Page {page+1}</span><button className="secondary" disabled={page===0} onClick={()=>setPage(page-1)}><Icon name="chevronLeft" size={16}/>Previous</button><button className="secondary" disabled={!data?.hasNext} onClick={()=>setPage(page+1)}>Next<Icon name="chevronRight" size={16}/></button></div>; }
 function Login({onLogin}) {
-  const [error,setError]=useState(),[busy,setBusy]=useState(false),[recovery,setRecovery]=useState(false),[sent,setSent]=useState(false);
+  const [error,setError]=useState(),[busy,setBusy]=useState(false),[recovery,setRecovery]=useState(false),[sent,setSent]=useState(false),[mfa,setMfa]=useState(false),[setupKey,setSetupKey]=useState('');
   async function submit(e) {
     e.preventDefault();setError(null);setBusy(true);const fields=Object.fromEntries(new FormData(e.target));
     try {
@@ -44,7 +45,12 @@ function Login({onLogin}) {
         await api.request(route,{method:'POST',body:JSON.stringify(fields)});
         if(sent){setRecovery(false);setSent(false);}else setSent(true);
       } else {await api.request('/api/staff-auth/login',{method:'POST',body:JSON.stringify(fields)});await onLogin();}
-    } catch(err){setError(err);}finally{setBusy(false);}
+    } catch(err){
+      if(err.message==='MFA_SETUP_REQUIRED'){
+        try{const setup=await api.request('/api/staff-auth/mfa/setup',{method:'POST',body:JSON.stringify(fields)});setSetupKey(setup.secret);setMfa(true);}catch(e){setError(e);}
+      }else if(err.message==='MFA_REQUIRED'){setMfa(true);setSetupKey('');}
+      else setError(err);
+    }finally{setBusy(false);}
   }
   return <div className="login-layout">
     <section className="login-brand">
@@ -57,12 +63,15 @@ function Login({onLogin}) {
       <h2>{recovery?'Set up your password':'Sign in to your workspace'}</h2>
       <p className="muted">{recovery?'Use your clinic email to request a reset code.':'Use your individual clinic account.'}</p>
       <Notice error={error}/>
+      {mfa&&<p>Enter the six-digit code from your authenticator app.</p>}
+      {setupKey&&<p>Add a time-based account named BodyPerfect to your authenticator using this setup key: <code>{setupKey}</code>. Keep it private; it will not be shown after enrollment.</p>}
       <form onSubmit={submit}>
+        {mfa&&!recovery&&<Field label="Authenticator code" name="otp" inputMode="numeric" autoComplete="one-time-code" pattern="[0-9]{6}" required/>}
         <Field label="Email address" name="email" type="email" autoComplete="username" required/>
         {recovery?(sent&&<><Field label="Six-digit email code" name="otp" inputMode="numeric" pattern="[0-9]{6}" required/><Field label="New password" name="newPassword" type="password" autoComplete="new-password" minLength={8} maxLength={72} required/><small>Include uppercase, lowercase, a number and a special character (@$!%*?&).</small></>):<Field label="Password" name="password" type="password" autoComplete="current-password" required/>}
         <button disabled={busy}>{busy?'Please wait…':recovery?(sent?'Set password':'Request code'):'Sign in'}</button>
       </form>
-      <button className="text-button" onClick={()=>{setRecovery(!recovery);setSent(false);setError(null);}}>{recovery?'Back to sign in':'First time here or forgot your password?'}</button>
+      <button className="text-button" onClick={()=>{setRecovery(!recovery);setSent(false);setError(null);setMfa(false);setSetupKey('');}}>{recovery?'Back to sign in':'First time here or forgot your password?'}</button>
     </div></main>
   </div>;
 }
@@ -137,7 +146,7 @@ function Workspace({me,onLogout}) {
               {view==='overview'&&data&&<Overview branch={branch} day={day} data={data} onCalendar={()=>{setTo(day);setView('calendar');}} onUpcoming={()=>{setTo(addDays(day,30));setView('calendar');}} onDay={date=>{setDay(date);setTo(date);setView('calendar');}} onPatients={()=>setView('patients')} onBook={bookNew} onNewPatient={()=>setDialog('patient')}/>}
               {view==='patients'&&(data?.items?.length?<div className="table-wrap"><table><thead><tr><th>Patient</th><th>Contact</th><th>Account</th><th>Action</th></tr></thead><tbody>{data.items.map(p=><tr key={p.id}><td><div className="person"><Avatar name={p.fullName}/><div><strong>{p.fullName}</strong><small>BP-{p.id}</small></div></div></td><td>{p.email}<small>{p.phone}</small></td><td><Badge value={p.status}/></td><td><button className="text-button" onClick={()=>setSelected(p)}>Open record<Icon name="chevronRight" size={15}/></button></td></tr>)}</tbody></table></div>:<Empty icon="users">{query?'No patients match this search. Try a name, email or phone.':'No patients are associated with this branch yet. Add a patient to get started.'}</Empty>)}
               {view==='calendar'&&<AppointmentsTable items={data?.items} branch={branch} clinical={role==='CLINICIAN'} onChanged={()=>setRefresh(x=>x+1)} onReschedule={a=>{setRescheduling(a);setDialog('booking');}}/>}
-              {view==='support'&&<SupportInbox key={`${branch}-${refresh}`} branch={branch}/>}
+              {view==='support'&&<><SupportInbox key={`${branch}-${refresh}`} branch={branch}/>{me.role==='ADMIN'&&<PrivacyQueue/>}</>}
               {view==='followups'&&<FollowUps key={`${branch}-${refresh}`} branch={branch}/>}
               {view==='templates'&&<Templates key={`${branch}-${refresh}`} branch={branch}/>}
               {view==='settings'&&<ScheduleSettings key={`${branch}-${refresh}`} branch={branch}/>}

@@ -23,13 +23,14 @@ public class StaffAuthController {
     @GetMapping("/csrf") public Map<String,String> csrf(CsrfToken token) {return Map.of("token",token.getToken(),"headerName",token.getHeaderName());}
     @PostMapping("/login") public ResponseEntity<ApiResponse<Void>> login(@Valid @RequestBody LoginRequest request,HttpServletResponse response) {
         var result=auth.login(request);
-        if(!result.isSuccess())return ResponseEntity.status(401).body(ApiResponse.error("Invalid staff credentials"));
+        if(!result.isSuccess())return ResponseEntity.status(401).body(ApiResponse.error(result.getMessage().startsWith("MFA_")?result.getMessage():"Invalid staff credentials or authenticator code"));
         if("PATIENT".equals(result.getData().getRole())) {
             sessions.logout(result.getData().getEmail(),result.getData().getAccessToken(),false);
             return ResponseEntity.status(403).body(ApiResponse.error("Staff access required"));
         }
         cookies(response,result.getData());return ResponseEntity.ok(ApiResponse.success("Signed in"));
     }
+    @PostMapping("/mfa/setup") public ResponseEntity<?> setup(@Valid @RequestBody LoginRequest request){var result=auth.setupStaffMfa(request);return ResponseEntity.status(result.isSuccess()?200:401).header("Cache-Control","no-store").body(result);}
     @PostMapping("/refresh") public ResponseEntity<ApiResponse<Void>> refresh(@CookieValue(value="bp_staff_refresh",defaultValue="") String token,HttpServletResponse response) {
         var result=auth.refreshToken(token);
         if(!result.isSuccess()) {clear(response);return ResponseEntity.status(401).body(ApiResponse.error("Session expired"));}

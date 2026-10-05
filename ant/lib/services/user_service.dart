@@ -27,11 +27,10 @@ class UserProfileData {
     this.preferredTreatment,
   });
 
-  /// Full URL (with base) for the profile image, or null if user has none.
+  /// Owner-only endpoint. Fetch with the signed-in session; never as a public image URL.
   String? get fullImageUrl {
     if (profileImageUrl == null || profileImageUrl!.isEmpty) return null;
-    if (profileImageUrl!.startsWith('http')) return profileImageUrl;
-    return ApiConfig.baseUrl + profileImageUrl!;
+    return '${ApiConfig.baseUrl}/api/user/profile/image';
   }
 
   factory UserProfileData.fromJson(Map<String, dynamic> json) {

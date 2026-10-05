@@ -25,6 +25,16 @@ public class UserController {
         return ResponseEntity.ok(userService.getProfile(email));
     }
 
+    @GetMapping("/profile/image")
+    public ResponseEntity<org.springframework.core.io.Resource> photo(Authentication auth) throws java.io.IOException {
+        var resource = userService.readOwnPhoto(auth.getName());
+        var name = resource.getFilename();
+        String type = name.endsWith(".png") ? "image/png" : name.endsWith(".webp") ? "image/webp" : "image/jpeg";
+        return ResponseEntity.ok().header("Cache-Control", "no-store, private")
+                .header("X-Content-Type-Options", "nosniff")
+                .contentType(org.springframework.http.MediaType.parseMediaType(type)).body(resource);
+    }
+
     @PutMapping("/profile")
     public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
             @Valid @RequestBody UpdateProfileRequest request,

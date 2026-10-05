@@ -1,0 +1,70 @@
+name: bodyperfect-production
+services:
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clinicapp
+      POSTGRES_USER: clinicapp
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:?required}
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U clinicapp -d clinicapp']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    networks: [internal]
+  api:
+    build: ../clinicapp
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_FORWARD_HEADERS_STRATEGY: framework
+      DATABASE_URL: jdbc:postgresql://database:5432/clinicapp
+      DATABASE_USERNAME: clinicapp
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:?required}
+      JWT_SECRET: ${JWT_SECRET:?required}
+      APP_SECRETS_ENCRYPTION_KEY: ${APP_SECRETS_ENCRYPTION_KEY:?required}
+      CORS_ALLOWED_ORIGINS: https://${DASHBOARD_DOMAIN:?required}
+      APP_STAFF_COOKIE_SECURE: 'true'
+      APP_STAFF_MFA_REQUIRED: 'true'
+      UPLOAD_DIR: /app/uploads
+      DB_POOL_MAX_SIZE: 10
+      DB_POOL_MIN_IDLE: 2
+    volumes:
+      - uploads:/app/uploads
+    depends_on:
+      database:
+        condition: service_healthy
+    networks: [internal, outbound]
+    stop_grace_period: 45s
+  dashboard:
+    build: ../dashboard
+    restart: unless-stopped
+    depends_on: [api]
+    networks: [internal]
+  edge:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    environment:
+      API_DOMAIN: ${API_DOMAIN:?required}
+      DASHBOARD_DOMAIN: ${DASHBOARD_DOMAIN:?required}
+      ACME_EMAIL: ${ACME_EMAIL:?required}
+    ports: ['80:80', '443:443', '443:443/udp']
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - certificates:/data
+      - caddy_config:/config
+    depends_on: [api, dashboard]
+    networks: [internal, outbound]
+networks:
+  internal:
+    internal: true
+  outbound:
+volumes:
+  database:
+  uploads:
+  certificates:
+  caddy_config:

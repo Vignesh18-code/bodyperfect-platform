@@ -1,134 +1,62 @@
 package com.vignesh.clinicapp.auth.service;
+
+import com.vignesh.clinicapp.privacy.SecretCipher;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionTemplate;
 
+/** Queue inserts join the authentication transaction; SMTP failures cannot lose committed codes. */
 @Service
+@lombok.extern.slf4j.Slf4j
 @RequiredArgsConstructor
-@Slf4j
 public class EmailService {
-
+    private final JdbcTemplate db;
+    private final SecretCipher cipher;
     private final JavaMailSender mailSender;
+    private final TransactionTemplate transactions;
+    @Value("${app.mail.from:${spring.mail.username:}}") private String from;
+    @Value("${app.mail.worker-enabled:true}") private boolean enabled;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
-
-    @Async("emailTaskExecutor")
-    public void sendOtpEmail(String toEmail, String fullName, String otp) {
-
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("ANT Clinic - Your Verification Code");
-
-            String body = """
-                <html>
-                <body style="font-family: Arial, sans-serif; padding: 20px;">
-
-                    <h2 style="color: #2E86C1;">Welcome to Bodyperfect Clinic! 🏥</h2>
-
-                    <p>Hi <strong>%s</strong>,</p>
-
-                    <p>Your verification code is:</p>
-
-                    <div style="
-                        background: #F0F0F0;
-                        padding: 20px;
-                        text-align: center;
-                        font-size: 32px;
-                        font-weight: bold;
-                        letter-spacing: 8px;
-                        color: #2E86C1;
-                        border-radius: 10px;
-                        margin: 20px 0;">
-                        %s
-                    </div>
-
-                    <p>⏰ This code expires in <strong>5 minutes</strong>.</p>
-
-                    <p>If you did not request this, please ignore this email.</p>
-
-                    <br>
-                    <p style="color: #888;">— ANT Clinic Team</p>
-
-                </body>
-                </html>
-                """.formatted(fullName, otp);
-
-            helper.setText(body, true);
-
-            mailSender.send(message);
-
-            log.info("OTP email sent to: [{}]", toEmail);
-
-        } catch (MessagingException e) {
-            log.error("Failed to send OTP email to: [{}] Error: {}", toEmail, e.getMessage());
-        }
+    public void sendOtpEmail(String email, String name, String otp) { enqueue(email, otp, false); }
+    public void sendPasswordResetEmail(String email, String name, String otp) { enqueue(email, otp, true); }
+    private void enqueue(String email, String otp, boolean reset) {
+        String subject = reset ? "BodyPerfect password reset code" : "BodyPerfect verification code";
+        String body = "Your code is " + otp + ". It expires in 5 minutes. If you did not request this, ignore this email.";
+        db.update("insert into mail_outbox(recipient,payload) values (?,?)", email, cipher.encrypt(subject + "\n" + body));
     }
 
-    @Async("emailTaskExecutor")
-    public void sendPasswordResetEmail(String toEmail, String fullName, String otp) {
-
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true);
-
-            helper.setFrom(fromEmail);
-            helper.setTo(toEmail);
-            helper.setSubject("ANT Clinic - Password Reset Code");
-
-            String body = """
-                <html>
-                <body style="font-family: Arial, sans-serif; padding: 20px;">
-
-                    <h2 style="color: #E74C3C;">Password Reset Request 🔐</h2>
-
-                    <p>Hi <strong>%s</strong>,</p>
-
-                    <p>We received a request to reset your password. Your reset code is:</p>
-
-                    <div style="
-                        background: #FFF3F3;
-                        padding: 20px;
-                        text-align: center;
-                        font-size: 32px;
-                        font-weight: bold;
-                        letter-spacing: 8px;
-                        color: #E74C3C;
-                        border-radius: 10px;
-                        margin: 20px 0;">
-                        %s
-                    </div>
-
-                    <p>⏰ This code expires in <strong>5 minutes</strong>.</p>
-
-                    <p>If you did not request a password reset, please ignore this email. Your password will remain unchanged.</p>
-
-                    <br>
-                    <p style="color: #888;">— ANT Clinic Team</p>
-
-                </body>
-                </html>
-                """.formatted(fullName, otp);
-
-            helper.setText(body, true);
-
-            mailSender.send(message);
-
-            log.info("Password reset email sent to: [{}]", toEmail);
-
-        } catch (MessagingException e) {
-            log.error("Failed to send password reset email to: [{}] Error: {}", toEmail, e.getMessage());
+    @Scheduled(fixedDelayString="${app.mail.poll-ms:5000}", initialDelayString="30000")
+    public void deliverPending() {
+        if (!enabled) return;
+        // One row per transaction bounds locking; SKIP LOCKED allows multiple instances.
+        // A crash after SMTP acceptance can cause duplicate delivery of the same code.
+        for (int i=0; i<20; i++) {
+            Boolean delivered = transactions.execute(status -> {
+                db.update("delete from mail_outbox where expires_at<=current_timestamp");
+                var rows = db.queryForList("select id,recipient,payload,attempts from mail_outbox where state='PENDING' and next_attempt<=current_timestamp order by id limit 1 for update skip locked");
+                if (rows.isEmpty()) return false;
+                var row=rows.getFirst(); long id=((Number)row.get("id")).longValue();
+                try {
+                    String[] payload=cipher.decrypt((String)row.get("payload")).split("\n",2);
+                    var mail=new SimpleMailMessage(); mail.setFrom(from); mail.setTo((String)row.get("recipient"));
+                    mail.setSubject(payload[0]); mail.setText(payload[1]); mailSender.send(mail);
+                    db.update("delete from mail_outbox where id=?",id);
+                } catch (Exception failure) {
+                    int attempts=((Number)row.get("attempts")).intValue()+1;
+                    if(attempts>=5) {
+                        log.warn("Authentication mail delivery exhausted retries for outbox entry {}",id);
+                        db.update("delete from mail_outbox where id=?",id);
+                    }
+                    else db.update("update mail_outbox set attempts=?,next_attempt=current_timestamp+(? * interval '1 second') where id=?", attempts, Math.min(60,5*(1<<attempts)),id);
+                }
+                return true;
+            });
+            if (!Boolean.TRUE.equals(delivered)) break;
         }
     }
 }

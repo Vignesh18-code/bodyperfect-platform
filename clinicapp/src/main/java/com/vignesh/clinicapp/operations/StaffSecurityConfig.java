@@ -24,7 +24,7 @@ public class StaffSecurityConfig {
             .sessionManagement(s->s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .csrf(c->c.csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
                     .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler()))
-            .authorizeHttpRequests(a->a.requestMatchers("/api/staff-auth/csrf","/api/staff-auth/login","/api/staff-auth/refresh").permitAll()
+            .authorizeHttpRequests(a->a.requestMatchers("/api/staff-auth/mfa/setup","/api/staff-auth/csrf","/api/staff-auth/login","/api/staff-auth/refresh").permitAll()
                     .anyRequest().hasAnyRole("STAFF","ADMIN"))
             .exceptionHandling(e->e.authenticationEntryPoint((r,s,x)->{s.setStatus(401);s.setContentType("application/json");json.writeValue(s.getWriter(),ApiResponse.error("Staff authentication required"));})
                 .accessDeniedHandler((r,s,x)->{s.setStatus(403);s.setContentType("application/json");json.writeValue(s.getWriter(),ApiResponse.error("Access denied"));}))

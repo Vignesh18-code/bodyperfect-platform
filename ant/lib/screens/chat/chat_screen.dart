@@ -981,6 +981,53 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
     );
   }
 
+  Future<void> _reportReply(int id) async {
+    final reason = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      builder: (c) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(16),
+              child: Text(
+                'Report this AI reply',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+              ),
+            ),
+            for (final item in {
+              'UNSAFE': 'Unsafe advice',
+              'INCORRECT': 'Incorrect information',
+              'OFFENSIVE': 'Offensive content',
+              'PRIVACY': 'Privacy concern',
+              'OTHER': 'Other concern',
+            }.entries)
+              ListTile(
+                title: Text(item.value),
+                onTap: () => Navigator.pop(c, item.key),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (reason == null || !mounted) return;
+    final result = await _api.post('$_base/assistant/$id/report', {
+      'reason': reason,
+    });
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result['message'] ??
+              (result['success'] == true
+                  ? 'Report received for review'
+                  : 'Unable to report. Please retry.'),
+        ),
+      ),
+    );
+  }
+
   Widget _bubble(
     String text,
     bool mine,
@@ -1099,6 +1146,12 @@ class _ChatScreenState extends State<ChatScreen> with WidgetsBindingObserver {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (!mine && exchange?['id'] is int)
+                  IconButton(
+                    tooltip: 'Report reply',
+                    icon: const Icon(Icons.flag_outlined, size: 16),
+                    onPressed: () => _reportReply(exchange!['id'] as int),
+                  ),
                 if (date != null)
                   Flexible(
                     child: Text(

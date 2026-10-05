@@ -32,6 +32,8 @@ public class AuthService {
     private final SanitizationService sanitizationService;
     private final NotificationService notificationService;
     private final AuthSessionService sessions;
+    private final StaffMfaService mfa;
+    @org.springframework.beans.factory.annotation.Value("${app.staff.mfa-required:false}") private boolean mfaRequired;
 
     @Transactional
     public ApiResponse<Void> register(RegisterRequest request) {
@@ -89,9 +91,18 @@ public class AuthService {
             return ApiResponse.error("PENDING_VERIFICATION");
         }
         if (!user.isActive()) return ApiResponse.error("Invalid email or password");
+        if(mfaRequired && user.getRole()!=Role.PATIENT){String error=mfa.verify(user,request.getOtp());if(error!=null)return ApiResponse.error(error);}
         user.resetLoginAttempts();
         user.setLastLoginAt(LocalDateTime.now());
         return ApiResponse.success("Login successful!", sessions.issue(user));
+    }
+
+    @Transactional
+    public ApiResponse<java.util.Map<String,String>> setupStaffMfa(LoginRequest request) {
+        User user=lockedUser(request.getEmail());
+        if(user==null||!user.isActive()||user.isLocked()||user.getRole()==Role.PATIENT)return ApiResponse.error("Invalid staff credentials");
+        if(!passwordEncoder.matches(request.getPassword(),user.getPassword())){user.incrementFailedAttempts();if(user.getFailedLoginAttempts()>=5)user.setLockedUntil(LocalDateTime.now().plusMinutes(30));return ApiResponse.error("Invalid staff credentials");}
+        return ApiResponse.success("Add this key to your authenticator, then enter its six-digit code to sign in",java.util.Map.of("secret",mfa.setup(user),"issuer","BodyPerfect","account",user.getEmail()));
     }
 
     public ApiResponse<LoginResponse> refreshToken(String token) { return sessions.refresh(token); }
@@ -143,12 +154,8 @@ public class AuthService {
             user.setOtpLockedUntil(null);
         }
         userRepository.save(user);
-        try {
-            if (RESET.equals(purpose) || SETUP.equals(purpose)) emailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), code);
-            else emailService.sendOtpEmail(user.getEmail(), user.getFullName(), code);
-        } catch (Exception ex) {
-            log.warn("Authentication email could not be queued");
-        }
+        if (RESET.equals(purpose) || SETUP.equals(purpose)) emailService.sendPasswordResetEmail(user.getEmail(), user.getFullName(), code);
+        else emailService.sendOtpEmail(user.getEmail(), user.getFullName(), code);
     }
     private boolean consumeCode(User user, String code, String purpose) {
         if (otpLocked(user) || !purpose.equals(user.getOtpPurpose()) || user.getOtp() == null
