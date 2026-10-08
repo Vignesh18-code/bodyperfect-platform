@@ -42,6 +42,7 @@ class AppointmentConcurrencyTests {
         User owner=user(), other=user();
         var r=request(); r.setClaimGiftVoucher(true); r.setNote("x".repeat(500));
         assertTrue(service.createAppointment(owner.getEmail(),r).isSuccess());
+        assertTrue(service.getMyAppointments(owner.getEmail()).getData().getFirst().isGiftVoucherBooking());
         var claimed=users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt();
         assertNotNull(claimed);
         assertTrue(profiles.getProfile(owner.getEmail()).getData().isGiftVoucherClaimed());
@@ -50,7 +51,9 @@ class AppointmentConcurrencyTests {
         appointment.setStatus(AppointmentStatus.CANCELLED);appointments.saveAndFlush(appointment);
         assertFalse(service.createAppointment(owner.getEmail(),r).isSuccess());
         assertEquals(claimed,users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt());
-        assertTrue(service.createAppointment(owner.getEmail(),request()).isSuccess());
+        var normal=service.createAppointment(owner.getEmail(),request());
+        assertTrue(normal.isSuccess());
+        assertFalse(normal.getData().isGiftVoucherBooking());
     }
     @Test void failedCancelledOrRolledBackBookingDoesNotClaimVoucher() {
         User owner=user();var r=request();r.setClaimGiftVoucher(true);

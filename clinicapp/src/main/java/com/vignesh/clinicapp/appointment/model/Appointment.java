@@ -45,6 +45,9 @@ public class Appointment {
     @Column(length = 500)
     private String note;
 
+    @Column(nullable = false)
+    private boolean giftVoucherBooking;
+
     private Long resourceId;
     private Long serviceId;
     private java.time.Instant startsAt;

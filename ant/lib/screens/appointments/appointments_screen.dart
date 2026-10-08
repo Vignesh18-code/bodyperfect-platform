@@ -2,13 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../services/appointment_service.dart';
+import '../../config/clinic_contact_config.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'widgets/visit_guide.dart';
 import '../../services/external_link_service.dart';
 import '../../widgets/top_notification_toast.dart';
 import 'widgets/appointment_card.dart';
 import 'widgets/book_appointment_sheet.dart';
 
 class AppointmentsScreen extends StatefulWidget {
-  const AppointmentsScreen({super.key});
+  final VoidCallback? onContactClinic;
+  final bool active;
+  final Future<List<AppointmentData>> Function()? fetch;
+  const AppointmentsScreen({
+    super.key,
+    this.onContactClinic,
+    this.active = true,
+    this.fetch,
+  });
 
   @override
   State<AppointmentsScreen> createState() => _AppointmentsScreenState();
@@ -26,6 +37,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   AppointmentCardData? _activeAppointment;
   AppointmentData? _activeAppointmentData;
   bool _loading = true;
+  bool _calling = false;
+  String? _loadError;
+  List<AppointmentData> _history = [];
+
+  @override
+  void didUpdateWidget(covariant AppointmentsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.active && !oldWidget.active) _loadAppointment();
+  }
+
+  Future<List<AppointmentData>> _fetch() =>
+      (widget.fetch ?? AppointmentService.getMyAppointments)();
 
   @override
   void initState() {
@@ -36,7 +59,19 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   Future<void> _loadAppointment() async {
     setState(() => _loading = true);
 
-    final list = await AppointmentService.getMyAppointments();
+    List<AppointmentData> list;
+    try {
+      list = await _fetch();
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loading = false;
+          _loadError =
+              'Your appointments could not be loaded. Please try again.';
+        });
+      }
+      return;
+    }
     if (!mounted) return;
 
     // Find the first active (future) appointment
@@ -44,18 +79,36 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     final active = list.where((a) {
       final dt = _parseDateTime(a.appointmentDate, a.appointmentTime);
       return !['CANCELLED', 'NO_SHOW', 'COMPLETED'].contains(a.status) &&
-          (['CHECKED_IN', 'IN_CONSULTATION'].contains(a.status) || (dt != null && dt.isAfter(now)));
+          (['CHECKED_IN', 'IN_CONSULTATION'].contains(a.status) ||
+              (dt != null && dt.isAfter(now)));
     }).toList();
 
     setState(() {
       _loading = false;
+      _loadError = null;
+      _history = list
+          .where((a) => !active.any((current) => current.id == a.id))
+          .toList();
       _activeAppointmentData = active.isEmpty ? null : active.first;
       _activeAppointment = active.isEmpty ? null : _toCardData(active.first);
     });
   }
 
   Future<void> _openBookingSheet() async {
-    final activeAppointment = await _getActiveAppointment();
+    AppointmentData? activeAppointment;
+    try {
+      activeAppointment = await _getActiveAppointment();
+    } catch (_) {
+      if (mounted) {
+        showTopNotificationToast(
+          context,
+          title: 'Please try again',
+          message: 'We could not check your appointments.',
+          tone: TopNotificationTone.warning,
+        );
+      }
+      return;
+    }
     if (!mounted) return;
 
     if (activeAppointment != null) {
@@ -92,8 +145,12 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     final appointment = _activeAppointmentData;
     if (appointment == null) return;
     if (appointment.resourceId != null) {
-      showTopNotificationToast(context, title: 'Contact the Clinic',
-        message: 'Please contact your branch to change a confirmed resource booking.');
+      showTopNotificationToast(
+        context,
+        title: 'Contact the Clinic',
+        message:
+            'Please contact your branch to change a confirmed resource booking.',
+      );
       return;
     }
 
@@ -148,20 +205,23 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     showTopNotificationToast(
       context,
       title: 'Directions Link Copied',
-      message: 'Could not open maps automatically. Paste the copied link in your browser.',
+      message:
+          'Could not open maps automatically. Paste the copied link in your browser.',
       tone: TopNotificationTone.warning,
     );
   }
 
   Future<AppointmentData?> _getActiveAppointment() async {
-    final appointments = await AppointmentService.getMyAppointments();
+    final appointments = await _fetch();
     final now = DateTime.now();
     for (final appointment in appointments) {
       final dateTime = _parseDateTime(
         appointment.appointmentDate,
         appointment.appointmentTime,
       );
-      if (!['CANCELLED', 'NO_SHOW', 'COMPLETED'].contains(appointment.status) && dateTime != null && dateTime.isAfter(now)) {
+      if (!['CANCELLED', 'NO_SHOW', 'COMPLETED'].contains(appointment.status) &&
+          dateTime != null &&
+          dateTime.isAfter(now)) {
         return appointment;
       }
     }
@@ -183,8 +243,18 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
 
   String _formatAppointmentDate(DateTime dateTime) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return '${months[dateTime.month - 1]} ${dateTime.day}, ${dateTime.year}';
   }
@@ -198,8 +268,8 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   }
 
   AppointmentCardData _toCardData(AppointmentData a) {
-    final dt = _parseDateTime(a.appointmentDate, a.appointmentTime) ??
-        DateTime.now();
+    final dt =
+        _parseDateTime(a.appointmentDate, a.appointmentTime) ?? DateTime.now();
 
     return AppointmentCardData(
       id: a.id,
@@ -294,16 +364,50 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             children: [
               if (_loading)
                 _buildLoading()
+              else if (_loadError != null)
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    children: [
+                      Text(_loadError!, textAlign: TextAlign.center),
+                      TextButton(
+                        onPressed: _loadAppointment,
+                        child: const Text('Retry'),
+                      ),
+                    ],
+                  ),
+                )
               else if (_activeAppointment != null)
                 AppointmentCard(
                   appointment: _activeAppointment,
                   onReschedule: _openRescheduleSheet,
                   onGetDirections: _openDirections,
+                  onCallClinic: _callClinic,
                 )
               else
                 _buildEmptyState(),
 
-              SizedBox(height: 14.h),
+              if (!_loading && _loadError == null) ...[
+                SizedBox(height: 14.h),
+                if (_activeAppointmentData != null)
+                  VisitGuide(
+                    status: _activeAppointmentData!.status,
+                    voucherBooking: _activeAppointmentData!.giftVoucherBooking,
+                    onContactClinic: widget.onContactClinic,
+                  )
+                else if (widget.onContactClinic != null)
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: widget.onContactClinic,
+                      icon: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 18,
+                      ),
+                      label: const Text('Need help? Chat with our team'),
+                    ),
+                  ),
+                if (_history.isNotEmpty) _buildHistory(),
+              ],
               SizedBox(height: 24.h),
             ],
           ),
@@ -311,6 +415,108 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       ),
     );
   }
+
+  Future<void> _callClinic() async {
+    if (_calling) return;
+    _calling = true;
+    bool opened = false;
+    try {
+      opened = await launchUrl(
+        Uri(scheme: 'tel', path: ClinicContactConfig.phone),
+      );
+    } catch (_) {
+      opened = false;
+    } finally {
+      _calling = false;
+    }
+    if (!mounted || opened) return;
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Call clinic'),
+        content: const Text(
+          'This device cannot open the phone app. You can call us on ${ClinicContactConfig.phone}.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Close'),
+          ),
+          TextButton(
+            onPressed: () async {
+              await ExternalLinkService.copyUrl(ClinicContactConfig.phone);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            child: const Text('Copy number'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHistory() => Padding(
+    padding: const EdgeInsets.only(top: 22),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Recent appointments',
+          style: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: _textPrimary,
+          ),
+        ),
+        const SizedBox(height: 10),
+        for (final appointment in _history.take(5))
+          Container(
+            margin: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: _borderSoft),
+            ),
+            child: Row(
+              children: [
+                const Icon(
+                  Icons.event_note_outlined,
+                  color: _primaryBlue,
+                  size: 22,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _branchLabel(appointment.branch),
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        '${appointment.appointmentDate} · ${appointment.appointmentTime.length >= 5 ? appointment.appointmentTime.substring(0, 5) : appointment.appointmentTime}',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: _textSecondary,
+                        ),
+                      ),
+                      Text(
+                        appointment.status.replaceAll('_', ' ').toLowerCase(),
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: _textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    ),
+  );
 
   Widget _buildLoading() {
     return Container(
@@ -374,7 +580,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           SizedBox(height: 18.h),
 
           Text(
-            'No active appointment',
+            'Plan your next visit',
             style: TextStyle(
               fontSize: 17.sp,
               fontWeight: FontWeight.w800,
@@ -399,10 +605,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
           GestureDetector(
             onTap: _openBookingSheet,
             child: Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 22.w,
-                vertical: 14.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 22.w, vertical: 14.h),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,

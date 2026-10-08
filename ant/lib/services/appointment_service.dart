@@ -2,6 +2,7 @@ import '../config/api_config.dart';
 import 'api_service.dart';
 
 class AppointmentData {
+  final bool giftVoucherBooking;
   final int id;
   final int? resourceId;
   final String appointmentDate;
@@ -12,6 +13,7 @@ class AppointmentData {
   final String? createdAt;
 
   AppointmentData({
+    this.giftVoucherBooking = false,
     required this.id,
     this.resourceId,
     required this.appointmentDate,
@@ -24,6 +26,7 @@ class AppointmentData {
 
   factory AppointmentData.fromJson(Map<String, dynamic> json) {
     return AppointmentData(
+      giftVoucherBooking: json['giftVoucherBooking'] == true,
       id: json['id'] ?? 0,
       resourceId: json['resourceId'],
       appointmentDate: json['appointmentDate'] ?? '',
@@ -119,6 +122,6 @@ class AppointmentService {
       return list.map((e) => AppointmentData.fromJson(e)).toList();
     }
 
-    return [];
+    throw StateError('Appointments could not be loaded. Please try again.');
   }
 }

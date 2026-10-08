@@ -197,6 +197,7 @@ public class AppointmentService {
                 .appointmentTime(request.getAppointmentTime())
                 .branch(branch)
                 .status(AppointmentStatus.PENDING)
+                .giftVoucherBooking(request.isClaimGiftVoucher())
                 .note(request.getNote())
                 .build();
 
@@ -342,6 +343,7 @@ public class AppointmentService {
 
     private AppointmentResponse toResponse(Appointment a) {
         return AppointmentResponse.builder()
+                .giftVoucherBooking(a.isGiftVoucherBooking())
                 .id(a.getId())
                 .appointmentDate(a.getAppointmentDate())
                 .appointmentTime(a.getAppointmentTime())

@@ -154,8 +154,12 @@ class _HomeScreenState extends State<HomeScreen>
         _homeData.refresh();
         showTopNotificationToast(
           context,
-          title: 'Appointment Requested',
-          message: "We've received your request. Check notifications.",
+          title: claimGiftVoucher
+              ? 'Congratulations! AED 1,000 voucher claimed'
+              : 'Appointment Requested',
+          message: claimGiftVoucher
+              ? 'Your consultant will help you choose your care plan.'
+              : "We've received your request. Check notifications.",
         );
       } else if (result.status == AppointmentSheetStatus.alreadyExists) {
         showTopNotificationToast(
@@ -347,7 +351,13 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             _buildHomeTab(),
             _visitedTabs.contains(1)
-                ? const AppointmentsScreen()
+                ? AppointmentsScreen(
+                    active: _currentNavIndex == 1,
+                    onContactClinic: () {
+                      _clinicContactRequest++;
+                      _navigateTo(3);
+                    },
+                  )
                 : const SizedBox.shrink(),
             _visitedTabs.contains(2)
                 ? TreatmentProtocolScreen(

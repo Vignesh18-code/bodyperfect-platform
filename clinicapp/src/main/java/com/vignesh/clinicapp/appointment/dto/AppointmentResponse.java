@@ -10,6 +10,7 @@ import java.time.LocalTime;
 @Data
 @Builder
 public class AppointmentResponse {
+    private boolean giftVoucherBooking;
     private Long id;
     private Long resourceId;
     private LocalDate appointmentDate;

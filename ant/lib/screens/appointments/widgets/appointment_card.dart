@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-enum AppointmentStatus { confirmed, waiting, checkedIn, inProgress, completed, cancelled, noShow, unknown }
+enum AppointmentStatus {
+  confirmed,
+  waiting,
+  checkedIn,
+  inProgress,
+  completed,
+  cancelled,
+  noShow,
+  unknown,
+}
 
 /// View-model for the AppointmentCard. Kept independent of backend DTOs
 /// so the widget stays reusable.
@@ -27,12 +36,14 @@ class AppointmentCard extends StatefulWidget {
   final AppointmentCardData? appointment;
   final VoidCallback? onReschedule;
   final VoidCallback? onGetDirections;
+  final VoidCallback? onCallClinic;
 
   const AppointmentCard({
     super.key,
     this.appointment,
     this.onReschedule,
     this.onGetDirections,
+    this.onCallClinic,
   });
 
   @override
@@ -52,7 +63,12 @@ class _AppointmentCardState extends State<AppointmentCard>
   static const _textSecondary = Color(0xFF6B7280);
   static const _borderSoft = Color(0xFFEEF1F8);
 
-  AppointmentCardData get _data => widget.appointment ?? AppointmentCardData(dateTime: DateTime.now(), status: AppointmentStatus.unknown);
+  AppointmentCardData get _data =>
+      widget.appointment ??
+      AppointmentCardData(
+        dateTime: DateTime.now(),
+        status: AppointmentStatus.unknown,
+      );
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
   late final Animation<Offset> _slideAnim;
@@ -130,17 +146,24 @@ class _AppointmentCardState extends State<AppointmentCard>
   Widget build(BuildContext context) {
     return FadeTransition(
       opacity: _fadeAnim,
-      child: SlideTransition(
-        position: _slideAnim,
-        child: _buildCard(),
-      ),
+      child: SlideTransition(position: _slideAnim, child: _buildCard()),
     );
   }
 
   Widget _buildCard() {
     const months = [
-      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
-      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC',
+      'JAN',
+      'FEB',
+      'MAR',
+      'APR',
+      'MAY',
+      'JUN',
+      'JUL',
+      'AUG',
+      'SEP',
+      'OCT',
+      'NOV',
+      'DEC',
     ];
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
@@ -152,8 +175,8 @@ class _AppointmentCardState extends State<AppointmentCard>
     final hour = _data.dateTime.hour == 0
         ? 12
         : _data.dateTime.hour > 12
-            ? _data.dateTime.hour - 12
-            : _data.dateTime.hour;
+        ? _data.dateTime.hour - 12
+        : _data.dateTime.hour;
     final amPm = _data.dateTime.hour >= 12 ? 'PM' : 'AM';
     final minute = _data.dateTime.minute.toString().padLeft(2, '0');
     final timeStr = '$hour:$minute';
@@ -186,8 +209,14 @@ class _AppointmentCardState extends State<AppointmentCard>
     );
   }
 
-  Widget _buildHeroSection(String dayName, String dayNum, String monthName,
-      String year, String timeStr, String amPm) {
+  Widget _buildHeroSection(
+    String dayName,
+    String dayNum,
+    String monthName,
+    String year,
+    String timeStr,
+    String amPm,
+  ) {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
@@ -260,16 +289,18 @@ class _AppointmentCardState extends State<AppointmentCard>
                       ),
                     ),
                     SizedBox(width: 10.w),
-                    Text(
-                      'UPCOMING APPOINTMENT',
-                      style: TextStyle(
-                        fontSize: 10.sp,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.white.withValues(alpha: 0.9),
-                        letterSpacing: 1.4,
+                    Expanded(
+                      child: Text(
+                        'UPCOMING APPOINTMENT',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white.withValues(alpha: 0.9),
+                          letterSpacing: 1.4,
+                        ),
                       ),
                     ),
-                    const Spacer(),
+                    SizedBox(width: 8.w),
                     _buildStatusBadge(),
                   ],
                 ),
@@ -291,36 +322,37 @@ class _AppointmentCardState extends State<AppointmentCard>
                       ),
                     ),
                     SizedBox(width: 14.w),
-                    Padding(
-                      padding: EdgeInsets.only(bottom: 6.h),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$monthName · $year',
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w700,
-                              color: _accentLight,
-                              letterSpacing: 1.2,
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: 6.h),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '$monthName · $year',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w700,
+                                color: _accentLight,
+                                letterSpacing: 1.2,
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 4.h),
-                          Text(
-                            '$dayName · $timeStr $amPm',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withValues(alpha: 0.85),
-                              letterSpacing: 0.3,
+                            SizedBox(height: 4.h),
+                            Text(
+                              '$dayName · $timeStr $amPm',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withValues(alpha: 0.85),
+                                letterSpacing: 0.3,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
                 ),
-
               ],
             ),
           ),
@@ -345,10 +377,7 @@ class _AppointmentCardState extends State<AppointmentCard>
           // Note section
           if (_data.note != null) ...[
             Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 14.w,
-                vertical: 11.h,
-              ),
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 11.h),
               decoration: BoxDecoration(
                 color: _primaryBlue.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(12.r),
@@ -382,27 +411,34 @@ class _AppointmentCardState extends State<AppointmentCard>
             SizedBox(height: 14.h),
           ],
 
-          // Action buttons
+          // Keep location actions together; rescheduling is a secondary action.
           Row(
             children: [
               Expanded(
-                flex: 1,
-                child: _buildSecondaryButton(
-                  icon: Icons.calendar_today_outlined,
-                  label: 'Reschedule',
-                  onTap: widget.onReschedule ?? () {},
+                child: _buildPrimaryButton(
+                  icon: Icons.directions_outlined,
+                  label: 'Directions',
+                  onTap: widget.onGetDirections ?? () {},
                 ),
               ),
               SizedBox(width: 10.w),
               Expanded(
-                flex: 2,
-                child: _buildPrimaryButton(
-                  icon: Icons.directions_outlined,
-                  label: 'Get Directions',
-                  onTap: widget.onGetDirections ?? () {},
+                child: _buildSecondaryButton(
+                  icon: Icons.call_outlined,
+                  label: 'Call clinic',
+                  onTap: widget.onCallClinic ?? () {},
                 ),
               ),
             ],
+          ),
+          Align(
+            alignment: Alignment.center,
+            child: TextButton.icon(
+              onPressed: widget.onReschedule,
+              icon: const Icon(Icons.edit_calendar_outlined, size: 16),
+              label: const Text('Reschedule appointment'),
+              style: TextButton.styleFrom(foregroundColor: _primaryBlue),
+            ),
           ),
         ],
       ),
@@ -415,10 +451,7 @@ class _AppointmentCardState extends State<AppointmentCard>
       decoration: BoxDecoration(
         color: const Color(0xFFF8FAFD),
         borderRadius: BorderRadius.circular(14.r),
-        border: Border.all(
-          color: _borderSoft,
-          width: 1.r,
-        ),
+        border: Border.all(color: _borderSoft, width: 1.r),
       ),
       child: Row(
         children: [
@@ -496,7 +529,8 @@ class _AppointmentCardState extends State<AppointmentCard>
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 48.h,
+        constraints: BoxConstraints(minHeight: 48.h),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
@@ -517,13 +551,15 @@ class _AppointmentCardState extends State<AppointmentCard>
           children: [
             Icon(icon, size: 16.r, color: Colors.white),
             SizedBox(width: 8.w),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13.sp,
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                letterSpacing: -0.2,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 13.sp,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.white,
+                  letterSpacing: -0.2,
+                ),
               ),
             ),
           ],
@@ -541,27 +577,27 @@ class _AppointmentCardState extends State<AppointmentCard>
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
-        height: 48.h,
+        constraints: BoxConstraints(minHeight: 48.h),
+        padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 12.h),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14.r),
-          border: Border.all(
-            color: _borderSoft,
-            width: 1.2,
-          ),
+          border: Border.all(color: _borderSoft, width: 1.2),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 15.r, color: _textPrimary),
             SizedBox(width: 6.w),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w700,
-                color: _textPrimary,
-                letterSpacing: -0.2,
+            Flexible(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: _textPrimary,
+                  letterSpacing: -0.2,
+                ),
               ),
             ),
           ],
