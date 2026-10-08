@@ -1,3 +1,4 @@
+import '../../../core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -55,7 +56,6 @@ class _AppointmentCardState extends State<AppointmentCard>
   // ── Theme Colors (match home header) ──────────────────
   static const _primaryBlue = Color(0xFF4361EE);
   static const _primaryPurple = Color(0xFF3A0CA3);
-  static const _accentLight = Color(0xFFB8C4FF);
   static const _success = Color(0xFF06B78A);
   static const _warning = Color(0xFFFF9F1C);
   static const _purpleSoft = Color(0xFF7B61FF);
@@ -93,7 +93,12 @@ class _AppointmentCardState extends State<AppointmentCard>
     ).animate(_fadeAnim);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _animController.forward();
+      if (!mounted) return;
+      if (MediaQuery.disableAnimationsOf(context)) {
+        _animController.value = 1;
+      } else {
+        _animController.forward();
+      }
     });
   }
 
@@ -183,17 +188,14 @@ class _AppointmentCardState extends State<AppointmentCard>
 
     return Container(
       decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: AppColors.border),
         borderRadius: BorderRadius.circular(24.r),
         boxShadow: [
           BoxShadow(
-            color: _primaryBlue.withValues(alpha: 0.18),
-            blurRadius: 32.r,
-            offset: Offset(0, 12.h),
-          ),
-          BoxShadow(
-            color: _primaryPurple.withValues(alpha: 0.1),
-            blurRadius: 48.r,
-            offset: Offset(0, 24.h),
+            color: _primaryBlue.withValues(alpha: .06),
+            blurRadius: 22.r,
+            offset: Offset(0, 6.h),
           ),
         ],
       ),
@@ -217,145 +219,130 @@ class _AppointmentCardState extends State<AppointmentCard>
     String timeStr,
     String amPm,
   ) {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [_primaryBlue, _primaryPurple],
-        ),
-      ),
-      child: Stack(
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Ambient white orbs (matches home header style)
-          Positioned(
-            top: -50.h,
-            right: -40.w,
-            child: Container(
-              width: 180.r,
-              height: 180.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Colors.white.withValues(alpha: 0.12),
-                    Colors.white.withValues(alpha: 0.0),
-                  ],
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: 12.w,
+            runSpacing: 10.h,
+            children: [
+              Text(
+                'UPCOMING VISIT',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.3,
+                  color: _textSecondary,
                 ),
               ),
-            ),
+              _buildStatusBadge(),
+            ],
           ),
-          Positioned(
-            bottom: -70.h,
-            left: -40.w,
-            child: Container(
-              width: 200.r,
-              height: 200.r,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    _purpleSoft.withValues(alpha: 0.2),
-                    _purpleSoft.withValues(alpha: 0.0),
-                  ],
+          SizedBox(height: 18.h),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final date = Container(
+                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
+                decoration: BoxDecoration(
+                  color: AppColors.tint,
+                  borderRadius: BorderRadius.circular(16.r),
                 ),
-              ),
-            ),
-          ),
-
-          Padding(
-            padding: EdgeInsets.fromLTRB(22.w, 22.h, 22.w, 26.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top label row
-                Row(
-                  children: [
-                    Container(
-                      width: 32.r,
-                      height: 32.r,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.18),
-                        borderRadius: BorderRadius.circular(10.r),
-                        border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.25),
-                          width: 0.8,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.event_available_rounded,
-                        size: 16.r,
-                        color: Colors.white,
-                      ),
-                    ),
-                    SizedBox(width: 10.w),
-                    Expanded(
-                      child: Text(
-                        'UPCOMING APPOINTMENT',
-                        style: TextStyle(
-                          fontSize: 10.sp,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.white.withValues(alpha: 0.9),
-                          letterSpacing: 1.4,
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    _buildStatusBadge(),
-                  ],
-                ),
-
-                SizedBox(height: 22.h),
-
-                // Date + Time hero block
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       dayNum,
                       style: TextStyle(
-                        fontSize: 64.sp,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        height: 0.95,
-                        letterSpacing: -2.5,
+                        fontSize: 48.sp,
+                        fontWeight: FontWeight.w700,
+                        height: 1.05,
+                        letterSpacing: -2,
+                        color: _textPrimary,
                       ),
                     ),
-                    SizedBox(width: 14.w),
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(bottom: 6.h),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              '$monthName · $year',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w700,
-                                color: _accentLight,
-                                letterSpacing: 1.2,
-                              ),
-                            ),
-                            SizedBox(height: 4.h),
-                            Text(
-                              '$dayName · $timeStr $amPm',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white.withValues(alpha: 0.85),
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
+                    SizedBox(height: 5.h),
+                    Text(
+                      monthName,
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.5,
+                        color: _primaryBlue,
                       ),
                     ),
                   ],
                 ),
-              ],
-            ),
+              );
+              final details = Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$dayName · $year',
+                    style: TextStyle(
+                      fontSize: 11.sp,
+                      fontWeight: FontWeight.w500,
+                      color: _textSecondary,
+                      letterSpacing: .6,
+                    ),
+                  ),
+                  SizedBox(height: 8.h),
+                  Text(
+                    'Your clinic visit',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: -.4,
+                      color: _textPrimary,
+                    ),
+                  ),
+                  SizedBox(height: 10.h),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 17.r,
+                        color: _primaryBlue,
+                      ),
+                      SizedBox(width: 7.w),
+                      Flexible(
+                        child: Text(
+                          '$timeStr $amPm',
+                          style: TextStyle(
+                            fontSize: 15.sp,
+                            fontWeight: FontWeight.w600,
+                            color: _primaryBlue,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              );
+              if (MediaQuery.textScalerOf(context).scale(14) > 22) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    date,
+                    SizedBox(height: 14.h),
+                    details,
+                  ],
+                );
+              }
+              return Row(
+                children: [
+                  date,
+                  SizedBox(width: 18.w),
+                  Expanded(child: details),
+                ],
+              );
+            },
           ),
+          SizedBox(height: 18.h),
+          const Divider(height: 1, color: AppColors.border),
         ],
       ),
     );
@@ -364,7 +351,7 @@ class _AppointmentCardState extends State<AppointmentCard>
   Widget _buildInfoSection() {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.fromLTRB(22.w, 18.h, 22.w, 20.h),
+      padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -608,49 +595,27 @@ class _AppointmentCardState extends State<AppointmentCard>
 
   Widget _buildStatusBadge() {
     final color = _statusColor;
-
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.2),
+        color: color.withValues(alpha: .1),
         borderRadius: BorderRadius.circular(20.r),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.3),
-          width: 0.8,
-        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          TweenAnimationBuilder<double>(
-            tween: Tween(begin: 0.5, end: 1.0),
-            duration: const Duration(milliseconds: 1200),
-            curve: Curves.easeInOut,
-            builder: (context, pulseVal, _) {
-              return Container(
-                width: 6.r,
-                height: 6.r,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: color,
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.6 * pulseVal),
-                      blurRadius: 5 * pulseVal,
-                    ),
-                  ],
-                ),
-              );
-            },
+          Container(
+            width: 6.r,
+            height: 6.r,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           SizedBox(width: 6.w),
           Text(
             _statusLabel,
             style: TextStyle(
               fontSize: 10.5.sp,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 0.2,
+              fontWeight: FontWeight.w600,
+              color: _textPrimary,
             ),
           ),
         ],
