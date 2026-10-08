@@ -24,4 +24,6 @@ public class CreateAppointmentRequest {
 
     @Size(max = 500, message = "Note must be 500 characters or less")
     private String note;
+
+    private boolean claimGiftVoucher;
 }

@@ -1,4 +1,5 @@
 import 'package:ant/screens/home/home_screen.dart';
+import 'package:ant/screens/home/widgets/gift_voucher_card.dart';
 import 'package:ant/screens/home/widgets/promo_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -57,6 +58,34 @@ Map<String, dynamic> homeResponse(String url) => {
 };
 
 void main() {
+  testWidgets('claimed voucher stays hidden when home is recreated', (
+    tester,
+  ) async {
+    for (var i = 0; i < 2; i++) {
+      await mountHome(
+        tester,
+        HomeScreen(
+          fetch: (url) async {
+            final response = homeResponse(url);
+            if (url.endsWith('profile')) {
+              (response['data'] as Map<String, dynamic>)['giftVoucherClaimed'] =
+                  true;
+            }
+            return response;
+          },
+        ),
+      );
+      expect(find.byType(GiftVoucherCard), findsNothing);
+      await tester.pumpWidget(const SizedBox());
+    }
+    await mountHome(
+      tester,
+      HomeScreen(fetch: (url) async => homeResponse(url)),
+    );
+    expect(find.byType(GiftVoucherCard), findsOneWidget);
+    await tester.pumpWidget(const SizedBox());
+  });
+
   testWidgets('home loads only its data and promo opens matching service', (
     tester,
   ) async {

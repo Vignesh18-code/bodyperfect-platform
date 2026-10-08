@@ -42,6 +42,8 @@ public class User {
     @Column(length = 500)
     private String profileImageUrl;
 
+    private LocalDateTime giftVoucherClaimedAt;
+
     // ─── Security ──────────────────────────────────
     @Column(nullable = false, length = 255)
     private String password;

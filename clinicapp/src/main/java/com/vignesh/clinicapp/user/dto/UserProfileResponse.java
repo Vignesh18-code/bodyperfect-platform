@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 @Builder
 public class UserProfileResponse {
+    private boolean giftVoucherClaimed;
     private Long id;
     private String fullName;
     private String email;

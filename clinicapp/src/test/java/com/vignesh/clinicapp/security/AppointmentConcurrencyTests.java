@@ -35,6 +35,35 @@ class AppointmentConcurrencyTests {
         var r=new CreateAppointmentRequest();r.setAppointmentDate(LocalDate.now().plusDays(3));
         r.setAppointmentTime(LocalTime.NOON);r.setBranch("BURJUMAN");return r;
     }
+    @Autowired com.vignesh.clinicapp.user.service.UserService profiles;
+    @Autowired org.springframework.transaction.support.TransactionTemplate transactions;
+
+    @Test void voucherClaimPersistsIsPrivateAndCannotBeRepeated() {
+        User owner=user(), other=user();
+        var r=request(); r.setClaimGiftVoucher(true); r.setNote("x".repeat(500));
+        assertTrue(service.createAppointment(owner.getEmail(),r).isSuccess());
+        var claimed=users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt();
+        assertNotNull(claimed);
+        assertTrue(profiles.getProfile(owner.getEmail()).getData().isGiftVoucherClaimed());
+        assertFalse(profiles.getProfile(other.getEmail()).getData().isGiftVoucherClaimed());
+        var appointment=appointments.findActiveByUserId(owner.getId(),LocalDate.now(),LocalTime.now()).getFirst();
+        appointment.setStatus(AppointmentStatus.CANCELLED);appointments.saveAndFlush(appointment);
+        assertFalse(service.createAppointment(owner.getEmail(),r).isSuccess());
+        assertEquals(claimed,users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt());
+        assertTrue(service.createAppointment(owner.getEmail(),request()).isSuccess());
+    }
+    @Test void failedCancelledOrRolledBackBookingDoesNotClaimVoucher() {
+        User owner=user();var r=request();r.setClaimGiftVoucher(true);
+        r.setAppointmentDate(LocalDate.now().minusDays(1));
+        assertFalse(service.createAppointment(owner.getEmail(),r).isSuccess());
+        assertNull(users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt());
+        r.setAppointmentDate(LocalDate.now().plusDays(3));
+        transactions.executeWithoutResult(tx->{assertTrue(service.createAppointment(owner.getEmail(),r).isSuccess());tx.setRollbackOnly();});
+        assertNull(users.findById(owner.getId()).orElseThrow().getGiftVoucherClaimedAt());
+        assertTrue(service.createAppointment(owner.getEmail(),request()).isSuccess());
+        assertFalse(service.createAppointment(owner.getEmail(),r).isSuccess());
+        assertFalse(profiles.getProfile(owner.getEmail()).getData().isGiftVoucherClaimed());
+    }
     @Test void simultaneousBookingsForOnePatientHaveOneWinner() throws Exception {
         User u=user();var start=new CountDownLatch(1);
         try(var pool=Executors.newFixedThreadPool(8)) {

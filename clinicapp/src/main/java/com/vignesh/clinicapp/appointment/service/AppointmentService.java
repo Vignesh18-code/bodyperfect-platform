@@ -157,6 +157,9 @@ public class AppointmentService {
             String email, CreateAppointmentRequest request) {
 
         User user = findUserForUpdate(email);
+        if (request.isClaimGiftVoucher() && user.getGiftVoucherClaimedAt() != null) {
+            return ApiResponse.error("You have already claimed this gift voucher");
+        }
 
         if (!request.getAppointmentDate().atTime(request.getAppointmentTime()).isAfter(java.time.LocalDateTime.now())) {
             return ApiResponse.error("Appointment time cannot be in the past");
@@ -198,6 +201,9 @@ public class AppointmentService {
                 .build();
 
         Appointment saved = appointmentRepository.save(appointment);
+        if (request.isClaimGiftVoucher()) {
+            user.setGiftVoucherClaimedAt(java.time.LocalDateTime.now());
+        }
         operationData.associate(user.getId(), branch);
 
         String formattedTime = formatTime(request.getAppointmentTime());

@@ -3,6 +3,7 @@ import '../config/api_config.dart';
 import 'api_service.dart';
 
 class UserProfileData {
+  final bool giftVoucherClaimed;
   final int id;
   final String fullName;
   final String email;
@@ -15,6 +16,7 @@ class UserProfileData {
   final String? preferredTreatment;
 
   UserProfileData({
+    this.giftVoucherClaimed = false,
     required this.id,
     required this.fullName,
     required this.email,
@@ -35,6 +37,7 @@ class UserProfileData {
 
   factory UserProfileData.fromJson(Map<String, dynamic> json) {
     return UserProfileData(
+      giftVoucherClaimed: json['giftVoucherClaimed'] == true,
       id: json['id'] ?? 0,
       fullName: json['fullName'] ?? '',
       email: json['email'] ?? '',

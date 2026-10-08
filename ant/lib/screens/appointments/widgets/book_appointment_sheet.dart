@@ -19,6 +19,7 @@ Future<AppointmentSheetResult?> showBookAppointmentSheet(
   BuildContext context, {
   AppointmentData? rescheduleAppointment,
   String? initialNote,
+  bool claimGiftVoucher = false,
 }) {
   return showModalBottomSheet<AppointmentSheetResult>(
     context: context,
@@ -28,6 +29,7 @@ Future<AppointmentSheetResult?> showBookAppointmentSheet(
     builder: (ctx) => _BookAppointmentSheet(
       rescheduleAppointment: rescheduleAppointment,
       initialNote: initialNote,
+      claimGiftVoucher: claimGiftVoucher,
     ),
   );
 }
@@ -35,8 +37,13 @@ Future<AppointmentSheetResult?> showBookAppointmentSheet(
 class _BookAppointmentSheet extends StatefulWidget {
   final AppointmentData? rescheduleAppointment;
   final String? initialNote;
+  final bool claimGiftVoucher;
 
-  const _BookAppointmentSheet({this.rescheduleAppointment, this.initialNote});
+  const _BookAppointmentSheet({
+    this.rescheduleAppointment,
+    this.initialNote,
+    this.claimGiftVoucher = false,
+  });
 
   @override
   State<_BookAppointmentSheet> createState() => _BookAppointmentSheetState();
@@ -169,6 +176,7 @@ class _BookAppointmentSheetState extends State<_BookAppointmentSheet> {
             note: _noteController.text.trim(),
           )
         : await AppointmentService.bookAppointment(
+            claimGiftVoucher: widget.claimGiftVoucher,
             date: dateStr,
             time: timeStr,
             branch: _selectedBranch!,

@@ -51,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
   final _homeScroll = ScrollController();
   final Set<int> _visitedTabs = {0};
   bool _bookingOpen = false;
+  bool _voucherClaimedThisSession = false;
   bool _programOpen = false;
   bool _notificationsOpen = false;
   bool _promoVisible = true;
@@ -132,6 +133,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _handleBookAppointment({
     String? programName,
     String? bookingNote,
+    bool claimGiftVoucher = false,
   }) async {
     if (_bookingOpen || _homeData.sessionExpired) return;
     _bookingOpen = true;
@@ -139,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen>
       // Booking eligibility is enforced by the backend when submitted.
       final result = await showBookAppointmentSheet(
         context,
+        claimGiftVoucher: claimGiftVoucher,
         initialNote:
             bookingNote ??
             (programName == null
@@ -147,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen>
       );
       if (result == null || !mounted) return;
       if (result.status == AppointmentSheetStatus.booked) {
+        if (claimGiftVoucher) setState(() => _voucherClaimedThisSession = true);
         _homeData.refresh();
         showTopNotificationToast(
           context,
@@ -472,18 +476,38 @@ class _HomeScreenState extends State<HomeScreen>
                       onBookAppointment: (programName) =>
                           _handleBookAppointment(programName: programName),
                     ),
-                    SizedBox(height: 4.h),
-                    GiftVoucherCard(
-                      onCollect: () => _handleBookAppointment(
-                        bookingNote:
-                            'I would like to collect the AED 1,000 gift voucher.',
-                      ),
-                    ),
+                    _buildGiftVoucher(),
                     SizedBox(height: 24.h),
                   ],
                 ),
               ),
             ),
+    );
+  }
+
+  Widget _buildGiftVoucher() {
+    final visible =
+        _homeData.profile != null &&
+        !_homeData.profile!.giftVoucherClaimed &&
+        !_voucherClaimedThisSession;
+    final child = visible
+        ? Padding(
+            padding: EdgeInsets.only(top: 4.h),
+            child: GiftVoucherCard(
+              onCollect: () => _handleBookAppointment(
+                claimGiftVoucher: true,
+                bookingNote:
+                    'I would like to collect the AED 1,000 gift voucher.',
+              ),
+            ),
+          )
+        : const SizedBox.shrink();
+    if (MediaQuery.disableAnimationsOf(context)) return child;
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeInOutCubic,
+      alignment: Alignment.topCenter,
+      child: child,
     );
   }
 

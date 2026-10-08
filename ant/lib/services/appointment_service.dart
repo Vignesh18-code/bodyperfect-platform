@@ -56,11 +56,13 @@ class AppointmentService {
     required String time,
     required String branch,
     String? note,
+    bool claimGiftVoucher = false,
   }) async {
     final response = await ApiService.securePost(ApiConfig.appointments, {
       'appointmentDate': date,
       'appointmentTime': time,
       'branch': branch,
+      if (claimGiftVoucher) 'claimGiftVoucher': true,
       if (note != null && note.isNotEmpty) 'note': note,
     });
 

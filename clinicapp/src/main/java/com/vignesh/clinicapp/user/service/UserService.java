@@ -191,6 +191,7 @@ public class UserService {
 
     private UserProfileResponse toResponse(User user, long unreadCount) {
         return UserProfileResponse.builder()
+                .giftVoucherClaimed(user.getGiftVoucherClaimedAt() != null)
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .email(user.getEmail())
