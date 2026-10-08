@@ -49,3 +49,26 @@ test('logout refreshes an expired access cookie before revoking the session',asy
  await client.request('/api/staff-auth/logout',{method:'POST'});
  assert.equal(refreshes,1);assert.equal(revoked,true);
 });
+
+test('multipart uploads preserve FormData and use CSRF without JSON content type', async () => {
+  let sent;
+  const client = createApi(async (path, options) => {
+    if(path.endsWith('/csrf')) return new Response(JSON.stringify({token:'csrf-test'}));
+    sent=options;
+    return new Response(JSON.stringify({success:true,data:42}));
+  });
+  const body=new FormData();body.set('title','Synthetic report');
+  assert.equal(await client.request('/api/staff/patients/1/reports',{method:'POST',body}),42);
+  assert.equal(sent.body,body);
+  assert.equal(sent.headers['Content-Type'],undefined);
+  assert.equal(sent.headers['X-XSRF-TOKEN'],'csrf-test');
+});
+
+test('authenticated download returns a blob and preserves JSON errors', async () => {
+  const client=createApi(async path=>path.endsWith('/missing')
+    ? new Response(JSON.stringify({message:'Report not found'}),{status:404})
+    : new Response('%PDF-test',{headers:{'Content-Type':'application/pdf'}}));
+  const blob=await client.request('/api/staff/reports/1',{responseType:'blob'});
+  assert.equal(await blob.text(),'%PDF-test');
+  await assert.rejects(client.request('/api/staff/reports/missing',{responseType:'blob'}),/Report not found/);
+});

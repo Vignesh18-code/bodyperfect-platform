@@ -97,6 +97,42 @@ class ApiService {
     }
   }
 
+  /// Fetch private files with the same token rotation as JSON requests.
+  static Future<Uint8List> securePdf(String url) async {
+    var token = await StorageService.getAccessToken();
+    if (token == null) throw StateError('Please sign in again.');
+    Future<http.Response> send(String access) => http
+        .get(
+          Uri.parse(url),
+          headers: {
+            'Authorization': 'Bearer $access',
+            'Accept': 'application/pdf',
+          },
+        )
+        .timeout(const Duration(seconds: 30));
+    var response = await send(token);
+    if (response.statusCode == 401) {
+      final result = await refreshSession(rejectedAccessToken: token);
+      if (result != RefreshResult.refreshed) {
+        throw StateError('Please sign in again.');
+      }
+      token = await StorageService.getAccessToken();
+      if (token == null) throw StateError('Please sign in again.');
+      response = await send(token);
+    }
+    if (response.statusCode != 200 ||
+        !(response.headers['content-type'] ?? '').startsWith(
+          'application/pdf',
+        ) ||
+        response.bodyBytes.length > 5 * 1024 * 1024 ||
+        response.bodyBytes.length < 5 ||
+        ascii.decode(response.bodyBytes.take(5).toList(), allowInvalid: true) !=
+            '%PDF-') {
+      throw StateError('Report unavailable. Refresh and try again.');
+    }
+    return response.bodyBytes;
+  }
+
   static Future<Map<String, dynamic>> secureUpload(
     String url,
     Uint8List bytes, {

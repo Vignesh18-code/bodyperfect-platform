@@ -1,3 +1,5 @@
+import '../../services/report_service.dart';
+import 'widgets/reports_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -13,12 +15,14 @@ import 'widgets/book_appointment_sheet.dart';
 class AppointmentsScreen extends StatefulWidget {
   final VoidCallback? onContactClinic;
   final bool active;
+  final Future<List<PatientReport>> Function()? fetchReports;
   final Future<List<AppointmentData>> Function()? fetch;
   const AppointmentsScreen({
     super.key,
     this.onContactClinic,
     this.active = true,
     this.fetch,
+    this.fetchReports,
   });
 
   @override
@@ -40,11 +44,38 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   bool _calling = false;
   String? _loadError;
   List<AppointmentData> _history = [];
+  List<PatientReport> _reports = [];
+  bool _reportError = false;
+  int _reportRequest = 0;
+
+  Future<void> _refresh() async {
+    await Future.wait([_loadAppointment(), _loadReports()]);
+  }
+
+  Future<void> _loadReports() async {
+    final request = ++_reportRequest;
+    try {
+      final reports = await (widget.fetchReports ?? ReportService.list)();
+      if (mounted && request == _reportRequest) {
+        setState(() {
+          _reports = reports;
+          _reportError = false;
+        });
+      }
+    } catch (_) {
+      if (mounted && request == _reportRequest) {
+        setState(() {
+          _reports = [];
+          _reportError = true;
+        });
+      }
+    }
+  }
 
   @override
   void didUpdateWidget(covariant AppointmentsScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.active && !oldWidget.active) _loadAppointment();
+    if (widget.active && !oldWidget.active) _refresh();
   }
 
   Future<List<AppointmentData>> _fetch() =>
@@ -53,7 +84,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAppointment();
+    _refresh();
   }
 
   Future<void> _loadAppointment() async {
@@ -353,7 +384,7 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
     return SafeArea(
       child: RefreshIndicator(
         color: _primaryBlue,
-        onRefresh: _loadAppointment,
+        onRefresh: _refresh,
         child: SingleChildScrollView(
           physics: const AlwaysScrollableScrollPhysics(
             parent: BouncingScrollPhysics(),
@@ -387,6 +418,25 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               else
                 _buildEmptyState(),
 
+              ReportsCard(reports: _reports),
+              if (_reportError)
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: Row(
+                    children: [
+                      const Expanded(
+                        child: Text(
+                          'Unable to check for reports.',
+                          style: TextStyle(fontSize: 12, color: _textSecondary),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: _loadReports,
+                        child: const Text('Retry reports'),
+                      ),
+                    ],
+                  ),
+                ),
               if (!_loading && _loadError == null) ...[
                 SizedBox(height: 14.h),
                 if (_activeAppointmentData != null)

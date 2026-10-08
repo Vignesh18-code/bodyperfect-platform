@@ -1,3 +1,4 @@
+import {PatientReports} from './PatientReports.jsx';
 import {PrivacyQueue} from './PrivacyQueue.jsx';
 import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -165,7 +166,7 @@ function Workspace({me,onLogout}) {
     {dialog==='staff'&&<StaffForm branch={branch} onDone={done} onClose={()=>setDialog(null)}/>}
     {selected&&!dialog&&<Dialog wide title={selected.fullName} onClose={()=>setSelected(null)}>
       <div className="patient-summary"><Avatar name={selected.fullName} size="lg"/><div className="who"><Badge value={selected.status}/><div className="contact"><span><Icon name="mail" size={15}/>{selected.email}</span><span><Icon name="phone" size={15}/>{selected.phone}</span></div></div><button className="secondary" onClick={()=>setDialog('edit')}><Icon name="edit" size={15}/>Edit details</button></div>
-      {role==='CLINICIAN'&&<PatientPlans branch={branch} patient={selected.id}/>}
+      {role==='CLINICIAN'&&<><PatientPlans branch={branch} patient={selected.id}/><PatientReports key={`${branch}-${selected.id}`} branch={branch} patient={selected.id}/></>}
       <h3>Appointments · {day} to {to}</h3><Notice error={detailError}/>{detail?<AppointmentsTable items={detail.items}/>:!detailError&&<p role="status">Loading appointments…</p>}
     </Dialog>}
   </div>;

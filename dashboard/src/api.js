@@ -13,7 +13,7 @@ export function createApi(fetcher = fetch) {
   }
   async function send(path, options) {
     const headers = { ...options.headers };
-    if (options.body) headers['Content-Type'] = 'application/json';
+    if (options.body && !(options.body instanceof FormData)) headers['Content-Type'] = 'application/json';
     if (options.method && options.method !== 'GET') headers['X-XSRF-TOKEN'] = await csrfToken();
     return fetcher(path, { ...options, headers, credentials: 'same-origin' });
   }
@@ -24,12 +24,14 @@ export function createApi(fetcher = fetch) {
     return refreshing;
   }
   async function request(path, options = {}) {
+    const {responseType, ...requestOptions} = options;
     const started = generation;
-    let response = await send(path, options);
+    let response = await send(path, requestOptions);
     if (response.status === 401 && (!path.startsWith('/api/staff-auth/') || path === '/api/staff-auth/logout')) {
       if (started === generation) await rotate();
-      response = await send(path, options);
+      response = await send(path, requestOptions);
     }
+    if (responseType === 'blob' && response.ok) return response.blob();
     let payload;
     try { payload = await response.json(); } catch { throw new ApiError('The service returned an unreadable response.', response.status); }
     if (!response.ok || payload.success === false) throw new ApiError(payload.message || 'Request could not be completed.', response.status, response.headers.get('X-Request-Id'));

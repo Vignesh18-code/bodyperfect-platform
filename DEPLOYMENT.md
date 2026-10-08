@@ -109,3 +109,14 @@ Use a fresh database for synthetic staging acceptance. Moving existing accounts/
 The existing Compose stack is local-only (Mailpit and insecure HTTP cookie settings). Public profile upload URLs still need private authorization; staff MFA and backup/restore acceptance remain outstanding. Confirm real clinic configuration, privacy/content approval and the provider region before real patient use. The next deploy can be restricted staging while these are completed. Local passing tests are not public launch acceptance.
 
 Dashboard tests and bundle passed during this handoff. Container execution is not verified because Docker Engine is not running locally. No GitHub upload or cloud provisioning has occurred.
+
+## Client PDF reports
+
+Migration V22 adds `patient_reports`. Clinicians publish reviewed PDFs through **Patients → Open record → Client reports** in the dashboard. Only a clinician assigned to that branch can upload, download or withdraw reports for a branch-associated patient. The patient API always derives ownership from the authenticated account; no public file links are created.
+
+Reports appear below the appointment card, including when the client has no upcoming appointment. An empty list takes no space. The app's Download button fetches the authenticated PDF and opens the platform save/share sheet (on iOS choose Save to Files). The dashboard downloads directly. Withdrawing removes the stored PDF and client access while retaining report metadata and audit events. Already downloaded copies cannot be recalled.
+
+- PDF only, maximum 5 MiB, maximum 100 active reports per patient. Validation checks declared MIME type, PDF signature and EOF; this is not malware scanning. Only reviewed clinic PDFs should be published.
+- PDF contents are encrypted using the existing `APP_SECRETS_ENCRYPTION_KEY` and stored in PostgreSQL, so no extra public storage bucket or upload volume is required for reports. Uploads refuse to run without a persistent key. Back up the database and keep this key securely recoverable; changing it without re-encryption makes existing reports unreadable.
+- Sample report titles are confined to widget tests. No synthetic reports are inserted into client accounts.
+- Deploy the backend migration before using the updated Flutter/dashboard clients. Verify upload, owner download and withdrawal with an authorized test account after deployment.

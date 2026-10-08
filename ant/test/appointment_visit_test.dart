@@ -36,6 +36,7 @@ void main() {
       tester,
       Scaffold(
         body: AppointmentsScreen(
+          fetchReports: () async => [],
           fetch: () async => [booking(voucher: true)],
           onContactClinic: () => contacts++,
         ),
@@ -66,6 +67,7 @@ void main() {
         tester,
         Scaffold(
           body: AppointmentsScreen(
+            fetchReports: () async => [],
             fetch: () async => [booking(status: 'CONFIRMED')],
           ),
         ),
@@ -104,6 +106,7 @@ void main() {
         tester,
         Scaffold(
           body: AppointmentsScreen(
+            fetchReports: () async => [],
             fetch: () async {
               if (!online) throw StateError('offline');
               return [];
