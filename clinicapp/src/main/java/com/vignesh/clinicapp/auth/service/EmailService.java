@@ -4,22 +4,19 @@ import com.vignesh.clinicapp.privacy.SecretCipher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionTemplate;
 
-/** Queue inserts join the authentication transaction; SMTP failures cannot lose committed codes. */
+/** Queue inserts join the authentication transaction; Provider failures cannot lose committed codes. */
 @Service
 @lombok.extern.slf4j.Slf4j
 @RequiredArgsConstructor
 public class EmailService {
     private final JdbcTemplate db;
     private final SecretCipher cipher;
-    private final JavaMailSender mailSender;
+    private final MailDelivery delivery;
     private final TransactionTemplate transactions;
-    @Value("${app.mail.from:${spring.mail.username:}}") private String from;
     @Value("${app.mail.worker-enabled:true}") private boolean enabled;
 
     public void sendOtpEmail(String email, String name, String otp) { enqueue(email, otp, false); }
@@ -34,7 +31,7 @@ public class EmailService {
     public void deliverPending() {
         if (!enabled) return;
         // One row per transaction bounds locking; SKIP LOCKED allows multiple instances.
-        // A crash after SMTP acceptance can cause duplicate delivery of the same code.
+        // Resend retries use a stable idempotency key; SMTP delivery remains at least once.
         for (int i=0; i<20; i++) {
             Boolean delivered = transactions.execute(status -> {
                 db.update("delete from mail_outbox where expires_at<=current_timestamp");
@@ -43,8 +40,7 @@ public class EmailService {
                 var row=rows.getFirst(); long id=((Number)row.get("id")).longValue();
                 try {
                     String[] payload=cipher.decrypt((String)row.get("payload")).split("\n",2);
-                    var mail=new SimpleMailMessage(); mail.setFrom(from); mail.setTo((String)row.get("recipient"));
-                    mail.setSubject(payload[0]); mail.setText(payload[1]); mailSender.send(mail);
+                    delivery.send(id, (String)row.get("payload"), (String)row.get("recipient"), payload[0], payload[1]);
                     db.update("delete from mail_outbox where id=?",id);
                 } catch (Exception failure) {
                     int attempts=((Number)row.get("attempts")).intValue()+1;
@@ -53,6 +49,8 @@ public class EmailService {
                         db.update("delete from mail_outbox where id=?",id);
                     }
                     else db.update("update mail_outbox set attempts=?,next_attempt=current_timestamp+(? * interval '1 second') where id=?", attempts, Math.min(60,5*(1<<attempts)),id);
+                    // Stop this batch on a provider failure, including throttling.
+                    return false;
                 }
                 return true;
             });
