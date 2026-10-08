@@ -38,6 +38,8 @@ class AppointmentCard extends StatefulWidget {
   final VoidCallback? onReschedule;
   final VoidCallback? onGetDirections;
   final VoidCallback? onCallClinic;
+  final bool headerOnly;
+  final bool attached;
 
   const AppointmentCard({
     super.key,
@@ -45,6 +47,8 @@ class AppointmentCard extends StatefulWidget {
     this.onReschedule,
     this.onGetDirections,
     this.onCallClinic,
+    this.headerOnly = false,
+    this.attached = false,
   });
 
   @override
@@ -156,6 +160,7 @@ class _AppointmentCardState extends State<AppointmentCard>
   }
 
   Widget _buildCard() {
+    if (widget.attached) return _buildInfoSection();
     const months = [
       'JAN',
       'FEB',
@@ -185,6 +190,9 @@ class _AppointmentCardState extends State<AppointmentCard>
     final amPm = _data.dateTime.hour >= 12 ? 'PM' : 'AM';
     final minute = _data.dateTime.minute.toString().padLeft(2, '0');
     final timeStr = '$hour:$minute';
+    if (widget.headerOnly) {
+      return _buildHeroSection(dayName, dayNum, monthName, year, timeStr, amPm);
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -203,7 +211,21 @@ class _AppointmentCardState extends State<AppointmentCard>
         borderRadius: BorderRadius.circular(24.r),
         child: Column(
           children: [
-            _buildHeroSection(dayName, dayNum, monthName, year, timeStr, amPm),
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(vertical: 16.h),
+              decoration: const BoxDecoration(
+                gradient: AppColors.brandGradient,
+              ),
+              child: _buildHeroSection(
+                dayName,
+                dayNum,
+                monthName,
+                year,
+                timeStr,
+                amPm,
+              ),
+            ),
             _buildInfoSection(),
           ],
         ),
@@ -220,129 +242,69 @@ class _AppointmentCardState extends State<AppointmentCard>
     String amPm,
   ) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(18.w, 18.h, 18.w, 0),
+      padding: EdgeInsets.symmetric(horizontal: 20.w),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 12.w,
-            runSpacing: 10.h,
+          Row(
             children: [
-              Text(
-                'UPCOMING VISIT',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.3,
-                  color: _textSecondary,
+              Expanded(
+                child: Text(
+                  'Appointments',
+                  style: TextStyle(
+                    fontSize: 21.sp,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -.55,
+                    color: Colors.white,
+                  ),
                 ),
               ),
+              SizedBox(width: 10.w),
               _buildStatusBadge(),
             ],
           ),
-          SizedBox(height: 18.h),
-          LayoutBuilder(
-            builder: (context, constraints) {
-              final date = Container(
-                padding: EdgeInsets.symmetric(horizontal: 18.w, vertical: 12.h),
-                decoration: BoxDecoration(
-                  color: AppColors.tint,
-                  borderRadius: BorderRadius.circular(16.r),
+          SizedBox(height: 14.h),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                dayNum,
+                style: TextStyle(
+                  fontSize: 54.sp,
+                  height: 1.05,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -2,
+                  color: Colors.white,
                 ),
+              ),
+              SizedBox(width: 16.w),
+              Expanded(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      dayNum,
-                      style: TextStyle(
-                        fontSize: 48.sp,
-                        fontWeight: FontWeight.w700,
-                        height: 1.05,
-                        letterSpacing: -2,
-                        color: _textPrimary,
-                      ),
-                    ),
-                    SizedBox(height: 5.h),
-                    Text(
-                      monthName,
-                      style: TextStyle(
-                        fontSize: 11.sp,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
-                        color: _primaryBlue,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-              final details = Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$dayName · $year',
-                    style: TextStyle(
-                      fontSize: 11.sp,
-                      fontWeight: FontWeight.w500,
-                      color: _textSecondary,
-                      letterSpacing: .6,
-                    ),
-                  ),
-                  SizedBox(height: 8.h),
-                  Text(
-                    'Your clinic visit',
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: -.4,
-                      color: _textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 10.h),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.schedule_rounded,
-                        size: 17.r,
-                        color: _primaryBlue,
-                      ),
-                      SizedBox(width: 7.w),
-                      Flexible(
-                        child: Text(
-                          '$timeStr $amPm',
-                          style: TextStyle(
-                            fontSize: 15.sp,
-                            fontWeight: FontWeight.w600,
-                            color: _primaryBlue,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              );
-              if (MediaQuery.textScalerOf(context).scale(14) > 22) {
-                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    date,
-                    SizedBox(height: 14.h),
-                    details,
+                    Text(
+                      '$monthName $year · $dayName',
+                      style: TextStyle(
+                        fontSize: 11.sp,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: .5,
+                        color: Colors.white.withValues(alpha: .8),
+                      ),
+                    ),
+                    SizedBox(height: 7.h),
+                    Text(
+                      '$timeStr $amPm',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
                   ],
-                );
-              }
-              return Row(
-                children: [
-                  date,
-                  SizedBox(width: 18.w),
-                  Expanded(child: details),
-                ],
-              );
-            },
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 18.h),
-          const Divider(height: 1, color: AppColors.border),
         ],
       ),
     );
@@ -351,7 +313,7 @@ class _AppointmentCardState extends State<AppointmentCard>
   Widget _buildInfoSection() {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.fromLTRB(18.w, 16.h, 18.w, 8.h),
+      padding: EdgeInsets.fromLTRB(20.w, 16.h, 20.w, 8.h),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -598,7 +560,7 @@ class _AppointmentCardState extends State<AppointmentCard>
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: .1),
+        color: Colors.white.withValues(alpha: .16),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
@@ -615,7 +577,7 @@ class _AppointmentCardState extends State<AppointmentCard>
             style: TextStyle(
               fontSize: 10.5.sp,
               fontWeight: FontWeight.w600,
-              color: _textPrimary,
+              color: Colors.white,
             ),
           ),
         ],

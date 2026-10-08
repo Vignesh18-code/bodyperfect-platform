@@ -385,97 +385,115 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Column(
-        children: [
-          const AppointmentHeader(),
-          Expanded(
-            child: RefreshIndicator(
-              color: _primaryBlue,
-              onRefresh: _refresh,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(
-                  parent: BouncingScrollPhysics(),
-                ),
-                padding: EdgeInsets.fromLTRB(16.w, 18.h, 16.w, 28.h),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (_loading)
-                      _buildLoading()
-                    else if (_loadError != null)
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          children: [
-                            Text(_loadError!, textAlign: TextAlign.center),
-                            TextButton(
-                              onPressed: _loadAppointment,
-                              child: const Text('Retry'),
-                            ),
-                          ],
-                        ),
-                      )
-                    else if (_activeAppointment != null)
-                      AppointmentCard(
-                        appointment: _activeAppointment,
-                        onReschedule: _openRescheduleSheet,
-                        onGetDirections: _openDirections,
-                        onCallClinic: _callClinic,
-                      )
-                    else
-                      _buildEmptyState(),
+      child: ColoredBox(
+        color: Colors.white,
+        child: Column(
+          children: [
+            AppointmentHeader(
+              appointment: _loading || _loadError != null
+                  ? null
+                  : _activeAppointment,
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                color: _primaryBlue,
+                onRefresh: _refresh,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(
+                    parent: BouncingScrollPhysics(),
+                  ),
+                  padding: EdgeInsets.only(bottom: 28.h),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (_loading)
+                        _buildLoading()
+                      else if (_loadError != null)
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Column(
+                            children: [
+                              Text(_loadError!, textAlign: TextAlign.center),
+                              TextButton(
+                                onPressed: _loadAppointment,
+                                child: const Text('Retry'),
+                              ),
+                            ],
+                          ),
+                        )
+                      else if (_activeAppointment != null)
+                        AppointmentCard(
+                          attached: true,
+                          appointment: _activeAppointment,
+                          onReschedule: _openRescheduleSheet,
+                          onGetDirections: _openDirections,
+                          onCallClinic: _callClinic,
+                        )
+                      else
+                        _buildEmptyState(),
 
-                    ReportsCard(reports: _reports),
-                    if (_reportError)
                       Padding(
-                        padding: const EdgeInsets.only(top: 12),
-                        child: Row(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Expanded(
-                              child: Text(
-                                'Unable to check for reports.',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: _textSecondary,
+                            ReportsCard(reports: _reports),
+                            if (_reportError)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 12),
+                                child: Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Text(
+                                        'Unable to check for reports.',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: _textSecondary,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: _loadReports,
+                                      child: const Text('Retry reports'),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            TextButton(
-                              onPressed: _loadReports,
-                              child: const Text('Retry reports'),
-                            ),
+                            if (!_loading && _loadError == null) ...[
+                              SizedBox(height: 14.h),
+                              if (_activeAppointmentData != null)
+                                VisitGuide(
+                                  status: _activeAppointmentData!.status,
+                                  voucherBooking: _activeAppointmentData!
+                                      .giftVoucherBooking,
+                                  onContactClinic: widget.onContactClinic,
+                                )
+                              else if (widget.onContactClinic != null)
+                                Center(
+                                  child: TextButton.icon(
+                                    onPressed: widget.onContactClinic,
+                                    icon: const Icon(
+                                      Icons.chat_bubble_outline_rounded,
+                                      size: 18,
+                                    ),
+                                    label: const Text(
+                                      'Need help? Chat with our team',
+                                    ),
+                                  ),
+                                ),
+                              if (_history.isNotEmpty) _buildHistory(),
+                            ],
+                            SizedBox(height: 24.h),
                           ],
                         ),
                       ),
-                    if (!_loading && _loadError == null) ...[
-                      SizedBox(height: 14.h),
-                      if (_activeAppointmentData != null)
-                        VisitGuide(
-                          status: _activeAppointmentData!.status,
-                          voucherBooking:
-                              _activeAppointmentData!.giftVoucherBooking,
-                          onContactClinic: widget.onContactClinic,
-                        )
-                      else if (widget.onContactClinic != null)
-                        Center(
-                          child: TextButton.icon(
-                            onPressed: widget.onContactClinic,
-                            icon: const Icon(
-                              Icons.chat_bubble_outline_rounded,
-                              size: 18,
-                            ),
-                            label: const Text('Need help? Chat with our team'),
-                          ),
-                        ),
-                      if (_history.isNotEmpty) _buildHistory(),
                     ],
-                    SizedBox(height: 24.h),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
