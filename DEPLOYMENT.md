@@ -1,5 +1,7 @@
 # Production Deployment
 
+For the active Railway deployment, use [Railway launch instructions](docs/RAILWAY_LAUNCH.md). Historical handoffs below describe their dated state, not the current deployment.
+
 ## Backend environment variables
 
 Run the backend with the `prod` profile and set these variables in the hosting provider:

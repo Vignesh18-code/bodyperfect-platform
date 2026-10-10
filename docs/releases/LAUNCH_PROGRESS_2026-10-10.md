@@ -29,3 +29,11 @@ scripts/smoke-local-workflows.py --accounts PATH_TO_PRIVATE_JSON is limited to l
 - Applicable personal-account closed testing (12 testers / 14 continuous days): https://support.google.com/googleplay/android-developer/answer/14151465
 
 Two-day delivery should target a tested internal release; public publication depends on account eligibility and Google's review.
+
+## Follow-up public-launch preparation
+
+- GitHub run 38029338267 finished successfully for backend, dashboard and Flutter.
+- Owner reports uploading the Android release to Play Console; the previous local artifact report predates that upload. Console release status remains unverified.
+- Added per-service Railway Docker configuration, health checks and component watch paths; hosting config paths still need to be selected in the correct project.
+- Added and executed read-only `scripts/check-hosted-release.py` against the live API. Health/readiness and six anonymous-access checks passed. Policy/contact and deletion-page contact checks failed because the live privacy email is missing its first letter. Retention text also has a missing opening letter. Details and exact correction are in `docs/RAILWAY_LAUNCH.md`.
+- No live settings or customer records were changed. CLI access still points to an unrelated account; owner sign-in is required before deployment, backups, dashboard provisioning and authenticated acceptance can be completed.
