@@ -2,18 +2,17 @@
 
 Use the unified GitHub repository `Vignesh18-code/bodyperfect-platform`, main branch. Do not recreate the database or signing key on updates.
 
-## Service settings
+## Service settings — verified 10 October 2026
 
 | Setting | Existing API | New staff dashboard |
 | --- | --- | --- |
 | Root directory | `/clinicapp` | `/dashboard` |
-| Config file path (repository absolute) | `/clinicapp/railway.json` | `/dashboard/railway.json` |
 | Builder | Dockerfile | Dockerfile |
 | Public target port | 8080 | 8080 |
 | Health check | `/actuator/health` | `/` |
 | Source | unified repository, main | same repository, main |
 
-The checked-in config controls Docker builds, component watch paths, startup health checks and bounded restart attempts. Select the config file path explicitly: a monorepo root directory does not automatically set the config path. Enable Wait for CI on both services. Railway startup checks do not provide continuous uptime monitoring.
+The service settings control Docker builds and startup health checks. Both GitHub deployment triggers now have Wait for CI enabled. The live Railway API rejects the older railway.json/railway.toml configuration path as deprecated; use service settings for this deployment. Railway startup checks do not provide continuous uptime monitoring.
 
 ## Dashboard connection and administrator
 
@@ -23,7 +22,7 @@ Use the existing administrator if present. If none exists, bootstrap the private
 
 ## Existing live configuration corrections
 
-Observed 10 October 2026: the public policies API returns `nfo@bodyperfect.ae`. Correct `PRIVACY_CONTACT_EMAIL` to the approved `info@bodyperfect.ae`. The current `RETENTION_NOTICE` begins `e keep`; correct its opening to `We keep` without inventing a retention period. The clinic still needs to approve a complete app-specific retention notice and policy. These are hosting-variable changes, not Flutter code changes.
+Corrected and verified live on 10 October 2026: `PRIVACY_CONTACT_EMAIL=info@bodyperfect.ae`, and the opening typo in `RETENTION_NOTICE` now reads `We keep`. The clinic still needs to approve a complete app-specific retention notice and policy; no retention period was invented.
 
 ## Storage and recovery before real patient use
 
@@ -45,6 +44,10 @@ Then use synthetic accounts to verify login/recovery, patient booking to clinici
 
 GitHub run 38029338267 passed backend, dashboard and Flutter checks. The signed Android bundle is version 1.0.1+3, package `com.bodyperfect.clinicapp`, API 36, targeting the existing HTTPS backend. The owner reports uploading it; Play release status is not independently verified.
 
-The local Railway CLI is signed into an account that cannot see `generous-purpose`. Hosted dashboard provisioning, administrator creation, corrected variables, deployed revision, persistent volumes and backups remain unverified until the owner reconnects that account. Never perform these changes on unrelated Railway projects.
+The owner reconnected the correct Railway account and the checkout is linked to `generous-purpose`. Backend and dashboard deployments of f13fc19 succeeded. The staff dashboard is https://bodyperfect-dashboard-production.up.railway.app. All 14 read-only smoke checks passed against these live services. Both deployment triggers now wait for CI.
+
+Administrator/database checks await first-connection SSH host trust; the owner approved a temporary SSH key, which must be revoked when checks finish. No administrator creation is claimed yet. The live API has no configured OPENAI_API_KEY; the owner was asked to add a new key privately. No profile-photo volume is currently attached to the API.
+
+The PostgreSQL backup schedule was empty. Attempting daily/weekly scheduling returned “Manual backups and backup schedules are only available for Pro workspaces.” No backup or schedule was created, and no plan was upgraded. Enable an eligible plan or arrange another approved backup destination and verify an isolated restore before real patient use.
 
 References: [Railway monorepos](https://docs.railway.com/deployments/monorepo), [configuration](https://docs.railway.com/config-as-code/reference), [health checks](https://docs.railway.com/deployments/healthchecks), [backups](https://docs.railway.com/volumes/backups).

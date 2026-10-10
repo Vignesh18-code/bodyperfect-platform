@@ -37,3 +37,12 @@ Two-day delivery should target a tested internal release; public publication dep
 - Added per-service Railway Docker configuration, health checks and component watch paths; hosting config paths still need to be selected in the correct project.
 - Added and executed read-only `scripts/check-hosted-release.py` against the live API. Health/readiness and six anonymous-access checks passed. Policy/contact and deletion-page contact checks failed because the live privacy email is missing its first letter. Retention text also has a missing opening letter. Details and exact correction are in `docs/RAILWAY_LAUNCH.md`.
 - No live settings or customer records were changed. CLI access still points to an unrelated account; owner sign-in is required before deployment, backups, dashboard provisioning and authenticated acceptance can be completed.
+
+## Hosted deployment completed after account reconnection
+
+- Correct account connected and checkout linked to generous-purpose; no unrelated brand project was modified.
+- New bodyperfect-dashboard service deployed from the unified repository with /dashboard root and HTTPS domain https://bodyperfect-dashboard-production.up.railway.app. Existing backend redeployed successfully with corrected privacy contact/retention text and exact dashboard CORS origin.
+- All 14 hosted read-only checks passed (API health/readiness, policy/contact, deletion page, protected routes, dashboard page, proxy/CSRF and exact origin). This is not authenticated patient/staff acceptance.
+- Both GitHub deployment triggers now have checkSuites=true, verified by API mutation response.
+- Railway rejected the old config-file path as deprecated, so health/build settings were applied directly to services and the unused draft railway.json files removed.
+- Backup schedule was absent. Railway rejected daily/weekly/manual backup setup as Pro-only; no backup/plan change occurred. Photo persistence, administrator setup, live AI, restore and Android acceptance remain open.
