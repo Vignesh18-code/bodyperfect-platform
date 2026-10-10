@@ -65,5 +65,7 @@ jobs:
       - run: flutter pub get
       - run: flutter analyze
       - run: flutter test
+      - name: Android compilation check
+        run: flutter build apk --debug
       # Compilation check only; release builds must use the real HTTPS endpoint.
       - run: flutter build web --dart-define=API_BASE_URL=https://api.example.com
