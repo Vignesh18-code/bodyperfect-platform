@@ -105,6 +105,35 @@ public class AuthService {
         return ApiResponse.success("Add this key to your authenticator, then enter its six-digit code to sign in",java.util.Map.of("secret",mfa.setup(user),"issuer","BodyPerfect","account",user.getEmail()));
     }
 
+    private User rotationUser(String email,String password) {
+        User user=lockedUser(email);
+        if(user==null||user.getRole()==Role.PATIENT||!user.isActive()||Boolean.TRUE.equals(user.getIsDeleted())||user.isLocked())return null;
+        if(!passwordEncoder.matches(password,user.getPassword())) {
+            user.incrementFailedAttempts();
+            if(user.getFailedLoginAttempts()>=5)user.setLockedUntil(LocalDateTime.now().plusMinutes(30));
+            return null;
+        }
+        return user;
+    }
+    @Transactional
+    public ApiResponse<java.util.Map<String,String>> beginMfaRotation(String email,MfaRotationRequest request) {
+        User user=rotationUser(email,request.password());
+        if(user==null)return ApiResponse.error("Invalid staff credentials");
+        String error=mfa.verify(user,request.otp());
+        if(error!=null)return ApiResponse.error(error);
+        return ApiResponse.success("Confirm the new authenticator within ten minutes",java.util.Map.of("secret",mfa.beginRotation(user)));
+    }
+    @Transactional
+    public ApiResponse<Void> confirmMfaRotation(String email,MfaRotationRequest request) {
+        User user=rotationUser(email,request.password());
+        if(user==null)return ApiResponse.error("Invalid staff credentials");
+        String error=mfa.confirmRotation(user,request.otp());
+        if(error!=null)return ApiResponse.error(error);
+        user.resetLoginAttempts();sessions.revokeAll(user);
+        log.info("Staff authenticator replaced; sessions revoked for user id {}",user.getId());
+        return ApiResponse.success("Authenticator replaced. Sign in with the next code from your new authenticator");
+    }
+
     public ApiResponse<LoginResponse> refreshToken(String token) { return sessions.refresh(token); }
 
     @Transactional

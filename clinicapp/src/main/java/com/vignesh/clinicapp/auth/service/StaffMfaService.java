@@ -35,6 +35,28 @@ public class StaffMfaService {
   db.update("update staff_totp set attempts=?,locked_until=case when ?>=5 then current_timestamp+interval '15 minutes' else null end where user_id=?",attempts,attempts,user.getId());
   return "Invalid or already-used authenticator code";
  }
+ // Rotation keeps the enrolled key valid until the replacement is proven.
+ public String beginRotation(User user){
+  StringBuilder secret=new StringBuilder();var random=new SecureRandom();
+  for(int i=0;i<32;i++)secret.append(ALPHABET.charAt(random.nextInt(32)));
+  int changed=db.update("update staff_totp set pending_secret=?,pending_expires_at=current_timestamp+interval '10 minutes',pending_attempts=0 where user_id=? and enrolled=true",cipher.encrypt(secret.toString()),user.getId());
+  if(changed!=1)throw new IllegalStateException("Enroll your authenticator before replacing it");
+  return secret.toString();
+ }
+ public String confirmRotation(User user,String code){
+  var rows=db.queryForList("select pending_secret,pending_expires_at,pending_attempts from staff_totp where user_id=? for update",user.getId());
+  if(rows.isEmpty())return "Start authenticator replacement first";
+  var row=rows.getFirst();var expires=(java.sql.Timestamp)row.get("pending_expires_at");
+  if(row.get("pending_secret")==null||expires==null||!expires.toInstant().isAfter(Instant.now()))return "Replacement expired. Start again with your current authenticator";
+  int attempts=((Number)row.get("pending_attempts")).intValue();
+  if(attempts>=5)return "Too many replacement attempts. Start again with your current authenticator";
+  String secret=cipher.decrypt((String)row.get("pending_secret"));long now=Instant.now().getEpochSecond()/30;
+  for(long tick=now-1;tick<=now+1;tick++)if(java.security.MessageDigest.isEqual(totp(secret,tick).getBytes(java.nio.charset.StandardCharsets.US_ASCII),code.getBytes(java.nio.charset.StandardCharsets.US_ASCII))){
+   db.update("update staff_totp set secret=pending_secret,last_counter=?,enrolled=true,attempts=0,locked_until=null,pending_secret=null,pending_expires_at=null,pending_attempts=0 where user_id=?",tick,user.getId());return null;
+  }
+  db.update("update staff_totp set pending_attempts=pending_attempts+1 where user_id=?",user.getId());
+  return "Invalid code from the replacement authenticator";
+ }
  static String totp(String secret,long counter){try{
   var bytes=new java.io.ByteArrayOutputStream();int buffer=0,bits=0;for(char c:secret.toCharArray()){buffer=(buffer<<5)|ALPHABET.indexOf(c);bits+=5;if(bits>=8){bits-=8;bytes.write((buffer>>bits)&255);}}
   Mac mac=Mac.getInstance("HmacSHA1");mac.init(new SecretKeySpec(bytes.toByteArray(),"HmacSHA1"));byte[] h=mac.doFinal(ByteBuffer.allocate(8).putLong(counter).array());int o=h[h.length-1]&15;int n=((h[o]&127)<<24)|((h[o+1]&255)<<16)|((h[o+2]&255)<<8)|(h[o+3]&255);return String.format("%06d",n%1000000);

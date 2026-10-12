@@ -31,6 +31,57 @@ class ProductionWorkflowTests {
  @Autowired MockMvc mvc; @MockitoBean JavaMailSender sender;
  User user(Role role){String id=UUID.randomUUID().toString();var u=User.builder().email(id+"@example.test").phone(id.substring(0,12)).fullName("Synthetic").password(encoder.encode("Test@12345")).role(role).build();u=users.saveAndFlush(u);u.setStatus(UserStatus.ACTIVE);return users.saveAndFlush(u);}
  LoginRequest login(User u){var r=new LoginRequest();r.setEmail(u.getEmail());r.setPassword("Test@12345");return r;}
+ String enrollForRotation(User u) {
+  String secret=auth.setupStaffMfa(login(u)).getData().get("secret");
+  var r=login(u);r.setOtp(StaffMfaService.totp(secret,java.time.Instant.now().getEpochSecond()/30-1));
+  assertTrue(auth.login(r).isSuccess());return secret;
+ }
+ com.vignesh.clinicapp.auth.dto.MfaRotationRequest rotation(String password,String secret,long tick){
+  return new com.vignesh.clinicapp.auth.dto.MfaRotationRequest(password,StaffMfaService.totp(secret,tick));
+ }
+ @Test void authenticatorRotationReplacesOnlyAfterProofAndRevokesSessions(){
+  var u=user(Role.ADMIN);String old=enrollForRotation(u);long now=java.time.Instant.now().getEpochSecond()/30;
+  var pending=auth.beginMfaRotation(u.getEmail(),rotation("Test@12345",old,now));assertTrue(pending.isSuccess());
+  String replacement=pending.getData().get("secret");assertNotEquals(old,replacement);
+  assertNotEquals(replacement,db.queryForObject("select pending_secret from staff_totp where user_id=?",String.class,u.getId()));
+  assertNull(tx.execute(t->mfa.verify(u,StaffMfaService.totp(old,now+1))));
+  long version=users.findById(u.getId()).orElseThrow().getTokenVersion();
+  assertTrue(auth.confirmMfaRotation(u.getEmail(),rotation("Test@12345",replacement,now)).isSuccess());
+  assertTrue(users.findById(u.getId()).orElseThrow().getTokenVersion()>version);
+  assertNull(db.queryForObject("select pending_secret from staff_totp where user_id=?",String.class,u.getId()));
+  assertNotNull(tx.execute(t->mfa.verify(u,StaffMfaService.totp(old,now+1))));
+  assertNotNull(tx.execute(t->mfa.verify(u,StaffMfaService.totp(replacement,now))));
+  assertNull(tx.execute(t->mfa.verify(u,StaffMfaService.totp(replacement,now+1))));
+ }
+ @Test void rotationRequiresPasswordCurrentCodeAndStaffRole(){
+  var u=user(Role.STAFF);String old=enrollForRotation(u);long now=java.time.Instant.now().getEpochSecond()/30;
+  assertFalse(auth.beginMfaRotation(u.getEmail(),rotation("wrong",old,now)).isSuccess());
+  assertFalse(auth.beginMfaRotation(u.getEmail(),rotation("Test@12345",old,now-1)).isSuccess());
+  assertNull(db.queryForObject("select pending_secret from staff_totp where user_id=?",String.class,u.getId()));
+  var patient=user(Role.PATIENT);
+  assertFalse(auth.beginMfaRotation(patient.getEmail(),rotation("Test@12345",old,now)).isSuccess());
+  var pending=auth.beginMfaRotation(u.getEmail(),rotation("Test@12345",old,now));assertTrue(pending.isSuccess());
+  assertFalse(auth.confirmMfaRotation(u.getEmail(),rotation("wrong",pending.getData().get("secret"),now)).isSuccess());
+ }
+ @Test void expiredOrExhaustedReplacementDoesNotRemoveEnrolledKey(){
+  var u=user(Role.ADMIN);String old=enrollForRotation(u);long now=java.time.Instant.now().getEpochSecond()/30;
+  String replacement=auth.beginMfaRotation(u.getEmail(),rotation("Test@12345",old,now)).getData().get("secret");
+  String bad="000000";
+  while(bad.equals(StaffMfaService.totp(replacement,now-1))||bad.equals(StaffMfaService.totp(replacement,now))||bad.equals(StaffMfaService.totp(replacement,now+1)))bad=String.format("%06d",Integer.parseInt(bad)+1);
+  for(int i=0;i<5;i++)assertFalse(auth.confirmMfaRotation(u.getEmail(),new com.vignesh.clinicapp.auth.dto.MfaRotationRequest("Test@12345",bad)).isSuccess());
+  assertFalse(auth.confirmMfaRotation(u.getEmail(),rotation("Test@12345",replacement,now)).isSuccess());
+  db.update("update staff_totp set pending_attempts=0,pending_expires_at=current_timestamp-interval '1 second' where user_id=?",u.getId());
+  assertFalse(auth.confirmMfaRotation(u.getEmail(),rotation("Test@12345",replacement,now)).isSuccess());
+  assertNull(tx.execute(t->mfa.verify(u,StaffMfaService.totp(old,now+1))));
+ }
+ @Test void rotationEndpointRequiresStaffSessionAndCsrf() throws Exception {
+  mvc.perform(post("/api/staff-auth/mfa/rotation").contentType("application/json").content("{}"))
+   .andExpect(status().isForbidden());
+  var csrf=mvc.perform(get("/api/staff-auth/csrf")).andReturn().getResponse();
+  String value=new com.fasterxml.jackson.databind.ObjectMapper().readTree(csrf.getContentAsString()).get("token").asText();
+  mvc.perform(post("/api/staff-auth/mfa/rotation").cookie(csrf.getCookies()).header("X-XSRF-TOKEN",value).contentType("application/json").content("{}"))
+   .andExpect(status().isUnauthorized());
+ }
  @Test void staffMustEnrollAndCannotReplayCodeOrBypassThroughGeneralLogin(){
   var u=user(Role.ADMIN);var r=login(u);
   assertEquals("MFA_SETUP_REQUIRED",auth.login(r).getMessage());

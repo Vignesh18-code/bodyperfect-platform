@@ -88,6 +88,25 @@ function StaffForm({branch,onClose,onDone}) {
   return <Dialog title="Invite staff member" onClose={onClose}><Notice error={error}/><form onSubmit={submit}><Field label="Full name" name="fullName" required maxLength={100}/><Field label="Clinic email" name="email" type="email" required/><Field label="Phone · digits only" name="phone" pattern="[0-9]{9,15}" required/><label>Branch role<select name="staffRole"><option value="RECEPTION">Reception</option><option value="CLINICIAN">Clinician</option><option value="BRANCH_MANAGER">Branch manager</option></select></label><p className="muted">A password setup request will be sent to the supplied email. No shared password is created.</p><div className="form-actions"><button disabled={busy}>{busy?'Creating…':'Create staff account'}</button></div></form></Dialog>;
 }
 function AppointmentsTable({items,branch,clinical,onChanged,onReschedule}) { return items?.length?<div className="table-wrap"><table><thead><tr><th>Time</th><th>Patient</th><th>Status</th><th>Reference</th>{onChanged&&<th>Actions</th>}</tr></thead><tbody>{items.map(a=><tr key={a.id}><td className="when"><strong>{a.time.slice(0,5)}</strong><small>{a.date}</small></td><td><div className="person"><Avatar name={a.patientName} size="sm"/><strong>{a.patientName}</strong></div></td><td><Badge value={a.status}/></td><td><span className="ref">AP-{a.id}</span></td>{onChanged&&<td><AppointmentActions appointment={a} branch={branch} clinical={clinical} onChanged={onChanged} onReschedule={onReschedule}/></td>}</tr>)}</tbody></table></div>:<Empty icon="calendar">No appointments in this date range. Change the dates to view another day.</Empty>; }
+function AuthenticatorReplacement({onClose,onDone}) {
+  const [secret,setSecret]=useState(''),[error,setError]=useState(),[busy,setBusy]=useState(false);
+  async function submit(e){
+    e.preventDefault();const form=e.currentTarget;const fields=Object.fromEntries(new FormData(form));setBusy(true);setError(null);
+    try {
+      const result=await api.request('/api/staff-auth/mfa/rotation'+(secret?'/confirm':''),{method:'POST',body:JSON.stringify(fields)});
+      form.reset();
+      if(secret){setSecret('');onDone();}else setSecret(result.secret);
+    }catch(err){setError(err);}finally{setBusy(false);}
+  }
+  return <Dialog title="Replace authenticator" onClose={onClose}><Notice error={error}/>
+    <p>{secret?'Add a new time-based BodyPerfect account in your authenticator using this private key. Keep the existing account until confirmation succeeds.':'Verify your password and a fresh code from your current authenticator. Your existing key will work until the replacement is confirmed.'}</p>
+    {secret&&<><code style={{display:'block',overflowWrap:'anywhere',userSelect:'all',padding:'12px'}}>{secret}</code><p>Expires in ten minutes. Do not share this key or send it in chat.</p></>}
+    <form onSubmit={submit}><Field label="Current password" name="password" type="password" autoComplete="current-password" maxLength={72} required/>
+      <Field key={secret?'new':'current'} label={secret?'Code from your NEW authenticator':'Code from your CURRENT authenticator'} name="otp" inputMode="numeric" pattern="[0-9]{6}" autoComplete="one-time-code" required/>
+      <p>{secret?'Confirming replaces the old key and signs out all sessions. Wait for the next authenticator code before signing in again.':'If you just signed in, wait for the authenticator code to change before continuing.'}</p>
+      <div className="form-actions"><button className="secondary" type="button" onClick={onClose} disabled={busy}>Cancel</button><button disabled={busy}>{busy?'Verifying…':secret?'Confirm replacement':'Create replacement key'}</button></div>
+    </form></Dialog>;
+}
 function Workspace({me,onLogout}) {
   const initial=new URLSearchParams(location.search);
   const [view,setView]=useState(initial.get('view')||'overview'),[branch,setBranch]=useState(me.memberships.some(m=>m.branch===initial.get('branch'))?initial.get('branch'):me.memberships[0]?.branch||''),[query,setQuery]=useState(initial.get('query')||''),[debounced,setDebounced]=useState(query),[page,setPage]=useState(0),[day,setDay]=useState(today()),[to,setTo]=useState(today()),[data,setData]=useState(),[error,setError]=useState(),[loading,setLoading]=useState(true),[refresh,setRefresh]=useState(0),[dialog,setDialog]=useState(),[selected,setSelected]=useState(),[detail,setDetail]=useState(),[detailError,setDetailError]=useState(),[rescheduling,setRescheduling]=useState();
@@ -132,6 +151,7 @@ function Workspace({me,onLogout}) {
           <label className="branch-select"><Icon name="pin" size={15}/><span>Branch</span><select value={branch} onChange={e=>setBranch(e.target.value)}>{me.memberships.map(m=><option key={m.branch} value={m.branch}>{branchNames[m.branch]}</option>)}</select></label>
           <button className="icon round" title="Patient support" aria-label="Patient support" onClick={()=>setView('support')}><Duo name="mail" size={20}/></button>
           <div className="user-chip"><Avatar name={me.fullName}/><div><strong>{me.fullName}</strong><small>{roleLabel}</small></div></div>
+          <button className="icon" title="Replace authenticator" aria-label="Replace authenticator" onClick={()=>setDialog('authenticator')}><Icon name="lock"/></button>
           <button className="icon" title="Sign out" aria-label="Sign out" onClick={onLogout}><Icon name="logout"/></button>
         </div>
       </header>
@@ -160,6 +180,7 @@ function Workspace({me,onLogout}) {
       </main>
       <footer className="footer"><span>BodyPerfect · Clinic operations</span><span>Branch access is enforced by the server.</span></footer>
     </div>
+    {dialog==='authenticator'&&<AuthenticatorReplacement onClose={()=>setDialog(null)} onDone={()=>{setDialog(null);onLogout();}}/>}
     {dialog==='booking'&&<Dialog title={rescheduling?(rescheduling.resourceId?'Reschedule appointment':'Confirm appointment request'):'New appointment'} onClose={()=>setDialog(null)}><BookingForm branch={branch} appointment={rescheduling} onDone={done}/></Dialog>}
     {dialog==='patient'&&<PatientForm branch={branch} onDone={done} onClose={()=>setDialog(null)}/>}
     {dialog==='edit'&&<PatientForm patient={selected} branch={branch} onDone={done} onClose={()=>setDialog(null)}/>}

@@ -31,6 +31,15 @@ public class StaffAuthController {
         cookies(response,result.getData());return ResponseEntity.ok(ApiResponse.success("Signed in"));
     }
     @PostMapping("/mfa/setup") public ResponseEntity<?> setup(@Valid @RequestBody LoginRequest request){var result=auth.setupStaffMfa(request);return ResponseEntity.status(result.isSuccess()?200:401).header("Cache-Control","no-store").body(result);}
+    @PostMapping("/mfa/rotation") public ResponseEntity<?> beginRotation(Principal principal,@Valid @RequestBody MfaRotationRequest request) {
+        var result=auth.beginMfaRotation(principal.getName(),request);
+        return ResponseEntity.status(result.isSuccess()?200:400).header("Cache-Control","no-store").body(result);
+    }
+    @PostMapping("/mfa/rotation/confirm") public ResponseEntity<?> confirmRotation(Principal principal,@Valid @RequestBody MfaRotationRequest request,HttpServletResponse response) {
+        var result=auth.confirmMfaRotation(principal.getName(),request);
+        if(result.isSuccess())clear(response);
+        return ResponseEntity.status(result.isSuccess()?200:400).header("Cache-Control","no-store").body(result);
+    }
     @PostMapping("/refresh") public ResponseEntity<ApiResponse<Void>> refresh(@CookieValue(value="bp_staff_refresh",defaultValue="") String token,HttpServletResponse response) {
         var result=auth.refreshToken(token);
         if(!result.isSuccess()) {clear(response);return ResponseEntity.status(401).body(ApiResponse.error("Session expired"));}

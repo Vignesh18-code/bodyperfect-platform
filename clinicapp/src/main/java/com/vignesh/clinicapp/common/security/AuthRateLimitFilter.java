@@ -24,6 +24,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     private static final String[] LIMITED_PATHS = {
             "/api/staff-auth/login",
             "/api/staff-auth/mfa/setup",
+            "/api/staff-auth/mfa/rotation",
+            "/api/staff-auth/mfa/rotation/confirm",
             "/api/user/deletion-requests",
             "/api/staff-auth/refresh",
             "/api/auth/register",
