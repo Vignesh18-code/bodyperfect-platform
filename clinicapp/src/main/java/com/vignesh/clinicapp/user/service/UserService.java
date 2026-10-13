@@ -55,7 +55,7 @@ public class UserService {
     public ApiResponse<UserProfileResponse> updateProfile(
             String email, UpdateProfileRequest request) {
 
-        User user = findUserOrThrow(email);
+        User user = lockActiveUser(email);
 
         boolean changed = false;
 
@@ -114,7 +114,7 @@ public class UserService {
             return ApiResponse.error("Only JPG, PNG, or WEBP images are allowed");
         }
 
-        User user = findUserOrThrow(email);
+        User user = lockActiveUser(email);
 
         try {
             byte[] bytes = file.getBytes();
@@ -181,8 +181,13 @@ public class UserService {
     }
 
     // ── Helpers ─────────────────────────────────────────
+    private User lockActiveUser(String email) {
+        return userRepository.findByEmailForUpdate(email).filter(User::isActive)
+                .orElseThrow(() -> new org.springframework.security.access.AccessDeniedException("Active account required"));
+    }
     private User findUserOrThrow(String email) {
         return userRepository.findByEmail(email)
+                .filter(User::isActive)
                 .orElseThrow(() -> {
                     log.error("User not found: [{}]", email);
                     return new RuntimeException("User not found");
