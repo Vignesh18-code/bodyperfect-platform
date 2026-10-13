@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 @RestController @RequiredArgsConstructor @Validated
 public class PrivacyController {
  private final PrivacyService service;
+ private final AccountClosureService closures;
+ @GetMapping("/api/staff/privacy/deletion/{id}/preview") public ApiResponse<?> preview(Principal p,@PathVariable @Positive long id){return ApiResponse.success("Deletion review",closures.preview(p.getName(),id));}
+ @PostMapping("/api/staff/privacy/deletion/{id}/fulfill") public ApiResponse<?> fulfill(Principal p,@PathVariable @Positive long id,@Valid @RequestBody AccountClosureService.Fulfillment body){closures.fulfill(p.getName(),id,body);return ApiResponse.success("Account access revoked and non-clinical data removed. File cleanup is queued before completion.");}
  @GetMapping("/api/user/deletion-requests") public ApiResponse<?> status(Principal p){return ApiResponse.success("Account requests",service.requests(p.getName()));}
  @PostMapping("/api/user/deletion-requests") public ApiResponse<?> request(Principal p,@Valid @RequestBody PrivacyService.Deletion body){return ApiResponse.success("Deletion request received. The clinic will review the request; your account has not yet been deleted.",service.request(p.getName(),body));}
  @PostMapping("/api/support/assistant/{id}/report") public ApiResponse<?> report(Principal p,@PathVariable @Positive long id,@Valid @RequestBody PrivacyService.Report body){service.report(p.getName(),id,body);return ApiResponse.success("Report received for review");}
