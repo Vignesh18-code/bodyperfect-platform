@@ -48,6 +48,9 @@ class AccountClosureTests {
   assertNull(db.queryForObject("select retained_identity from account_closures where patient_id=?",String.class,u.getId()));
   assertEquals("IN_REVIEW",db.queryForObject("select state from privacy_requests where id=?",String.class,id));
   cleanup.run();assertFalse(Files.exists(own));assertTrue(Files.exists(unrelated));Files.delete(unrelated);
+  String ledger=Files.readString(dir.getParent().resolve(".recovery/account-closures.json"));
+  assertTrue(ledger.contains("\"patient_id\":"+u.getId()));assertFalse(ledger.contains(u.getEmail()));
+  mvc.perform(get("/uploads/.recovery/account-closures.json").header("Authorization","Bearer "+sessions.issue(other).getAccessToken())).andExpect(status().is4xxClientError());
   assertEquals("COMPLETED",db.queryForObject("select state from privacy_requests where id=?",String.class,id));
   assertThrows(org.springframework.web.server.ResponseStatusException.class,()->closures.fulfill(admin.getEmail(),id,input(null,List.of(),0)));
  }

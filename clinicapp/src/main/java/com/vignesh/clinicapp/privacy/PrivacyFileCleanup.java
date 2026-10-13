@@ -18,6 +18,17 @@ public class PrivacyFileCleanup {
  public void run(){
   for(long id:db.queryForList("select patient_id from privacy_file_cleanup order by created_at limit 100",Long.class)){
    try{
+    // Preserve deletion decisions alongside uploaded-file snapshots. Recovery must
+    // replay the newest ledger before an older database is allowed to serve users.
+    Path recovery=Path.of(uploads,".recovery").toAbsolutePath().normalize();
+    Files.createDirectories(recovery);
+    String ledger=db.queryForObject("select coalesce(json_agg(row_to_json(c)), '[]'::json)::text from account_closures c",String.class);
+    Path staged=Files.createTempFile(recovery,"closure-",".tmp");
+    try{
+     Files.writeString(staged,ledger);
+     try{Files.move(staged,recovery.resolve("account-closures.json"),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);}
+     catch(AtomicMoveNotSupportedException e){Files.move(staged,recovery.resolve("account-closures.json"),StandardCopyOption.REPLACE_EXISTING);}
+    }finally{Files.deleteIfExists(staged);}
     Path dir=Path.of(uploads,"profiles").toAbsolutePath().normalize();
     if(Files.exists(dir))try(var entries=Files.newDirectoryStream(dir,"user-"+id+"-*")){
      for(Path file:entries){if(Files.isDirectory(file,LinkOption.NOFOLLOW_LINKS))throw new java.io.IOException("Unexpected profile directory");Files.deleteIfExists(file);}
